@@ -12,6 +12,7 @@ node_modules/
 out/
 build/
 dist/
+*.tsbuildinfo
 
 # Production
 .env

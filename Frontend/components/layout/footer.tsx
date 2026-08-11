@@ -1,7 +1,16 @@
+'use client';
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Camera, Heart } from "lucide-react";
 
 export function Footer() {
+  const pathname = usePathname();
+
+  if (pathname?.startsWith('/dashboard')) {
+    return null;
+  }
+
   return (
     <footer className="border-t border-slate-800/80 bg-slate-950 text-slate-400 py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
