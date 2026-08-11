@@ -10,13 +10,18 @@ import {
   Users, 
   CheckCircle,
   Activity,
-  ArrowUpRight
+  ArrowUpRight,
+  UserCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { getCurrentUser } from "@/lib/auth/get-current-user";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const user = await getCurrentUser();
+
   const sampleEvents = [
     {
       id: "evt-101",
@@ -56,11 +61,14 @@ export default function DashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-8 border-b border-slate-800">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-extrabold text-white tracking-tight">Creator Dashboard</h1>
-            <Badge variant="gradient" className="text-xs">Phase 1 Placeholder</Badge>
+            <h1 className="text-3xl font-extrabold text-white tracking-tight">
+              Welcome, {user?.name || "Creator"}
+            </h1>
+            <Badge variant="gradient" className="text-xs">Phase 3 Authenticated</Badge>
           </div>
-          <p className="text-slate-400 text-sm mt-1">
-            Manage your photo events, view matching statistics, and monitor earnings.
+          <p className="text-slate-400 text-sm mt-1 flex items-center gap-2">
+            <UserCheck className="h-4 w-4 text-emerald-400" />
+            <span>Signed in as <strong className="text-slate-200">{user?.email || "Authenticated User"}</strong></span>
           </p>
         </div>
 
@@ -69,7 +77,8 @@ export default function DashboardPage() {
             <Activity className="h-4 w-4 text-emerald-400" />
             <span>FastAPI: Connected</span>
           </Button>
-          <Button variant="default" size="sm" className="gap-2">
+          <SignOutButton />
+          <Button variant="default" size="sm" className="gap-2 bg-indigo-600 hover:bg-indigo-500">
             <Plus className="h-4 w-4" />
             <span>Create New Event</span>
           </Button>
@@ -181,16 +190,16 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Phase 1 Status Banner */}
+      {/* Status Banner */}
       <div className="mt-12 rounded-2xl border border-indigo-500/20 bg-indigo-950/20 p-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-start gap-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400">
             <Camera className="h-5 w-5" />
           </div>
           <div>
-            <h4 className="text-base font-semibold text-white">Phase 1 Architecture Complete</h4>
+            <h4 className="text-base font-semibold text-white">Phase 3 Authentication Active</h4>
             <p className="text-xs text-slate-400 mt-0.5">
-              Next.js Frontend & FastAPI Backend health check ready. Auth.js, Prisma, PostgreSQL schemas, and InsightFace AI matching will be enabled in Phase 2+.
+              User identity <code className="text-indigo-300 font-mono">{user?.id}</code> verified server-side. NextAuth session protection enabled for /dashboard routes.
             </p>
           </div>
         </div>

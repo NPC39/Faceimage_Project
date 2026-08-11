@@ -1,8 +1,14 @@
-import Link from "next/link";
-import { Camera, Sparkles, LayoutDashboard } from "lucide-react";
-import { Button } from "@/components/ui/button";
+'use client';
+
+import Link from 'next/link';
+import { useSession, signOut } from 'next-auth/react';
+import { Camera, Sparkles, LayoutDashboard, LogOut, LogIn, UserPlus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export function Navbar() {
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === 'authenticated';
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -20,13 +26,7 @@ export function Navbar() {
           </div>
         </Link>
 
-        <nav className="flex items-center gap-4">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="sm" className="gap-2 text-slate-300 hover:text-white">
-              <LayoutDashboard className="h-4 w-4 text-indigo-400" />
-              <span>Dashboard</span>
-            </Button>
-          </Link>
+        <nav className="flex items-center gap-3">
           <Link href="/#features">
             <Button variant="ghost" size="sm" className="hidden sm:flex text-slate-300 hover:text-white">
               Features
@@ -37,12 +37,45 @@ export function Navbar() {
               How It Works
             </Button>
           </Link>
-          <Link href="/dashboard">
-            <Button variant="default" size="sm" className="gap-2">
-              <Sparkles className="h-4 w-4" />
-              <span>Get Started</span>
-            </Button>
-          </Link>
+
+          {isAuthenticated ? (
+            <>
+              <Link href="/dashboard">
+                <Button variant="ghost" size="sm" className="gap-2 text-slate-300 hover:text-white">
+                  <LayoutDashboard className="h-4 w-4 text-indigo-400" />
+                  <span>Dashboard</span>
+                </Button>
+              </Link>
+              <div className="hidden lg:flex items-center px-2.5 py-1 rounded-full border border-slate-800 bg-slate-900 text-xs text-slate-300">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse" />
+                <span className="truncate max-w-[120px] font-medium">{session?.user?.name || session?.user?.email}</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className="gap-2 border-slate-800 text-slate-300 hover:bg-slate-900 hover:text-white"
+              >
+                <LogOut className="h-4 w-4 text-rose-400" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button variant="ghost" size="sm" className="gap-1.5 text-slate-300 hover:text-white">
+                  <LogIn className="h-4 w-4 text-indigo-400" />
+                  <span>Sign In</span>
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button variant="default" size="sm" className="gap-1.5 bg-indigo-600 hover:bg-indigo-500">
+                  <UserPlus className="h-4 w-4" />
+                  <span>Register</span>
+                </Button>
+              </Link>
+            </>
+          )}
         </nav>
       </div>
     </header>

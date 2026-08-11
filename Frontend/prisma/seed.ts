@@ -1,4 +1,5 @@
 import { PrismaClient, Pricing, EventStatus, PhotoProcessingStatus, OrderStatus, PaymentStatus } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -15,12 +16,15 @@ async function main() {
   await prisma.event.deleteMany();
   await prisma.user.deleteMany();
 
+  const defaultPasswordHash = await bcrypt.hash('Password123!', 10);
+
   // Create Users
   const creator = await prisma.user.create({
     data: {
       name: 'Jane Photographer',
       email: 'jane@example.com',
       image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
+      passwordHash: defaultPasswordHash,
     },
   });
 
@@ -29,10 +33,11 @@ async function main() {
       name: 'John Runner',
       email: 'john@example.com',
       image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
+      passwordHash: defaultPasswordHash,
     },
   });
 
-  console.log(`Created users: ${creator.name}, ${customer.name}`);
+  console.log(`Created users with hashed passwords: ${creator.name}, ${customer.name}`);
 
   // Create Event
   const event = await prisma.event.create({
