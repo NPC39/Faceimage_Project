@@ -1,0 +1,234 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Pricing {
+  FREE
+  PAID
+}
+
+enum EventStatus {
+  DRAFT
+  PROCESSING
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PhotoProcessingStatus {
+  UPLOADING
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESSFUL
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  events   Event[]
+  orders   Order[]
+  accounts Account[]
+  sessions Session[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Event {
+  id            String      @id @default(cuid())
+  creatorId     String
+  name          String
+  slug          String      @unique
+  description   String?     @db.Text
+  eventDate     DateTime
+  coverImageKey String?
+  pricingType   Pricing     @default(PAID)
+  pricePerPhoto Int         @default(0) // Integer minor currency units (e.g., 4900 satang = 49.00 THB or 49 THB)
+  currency      String      @default("THB")
+  status        EventStatus @default(DRAFT)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  creator User         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  photos  EventPhoto[]
+  orders  Order[]
+
+  @@index([creatorId])
+  @@index([status])
+  @@index([slug])
+  @@map("events")
+}
+
+model EventPhoto {
+  id               String                @id @default(cuid())
+  eventId          String
+  originalKey      String
+  previewKey       String?
+  thumbnailKey     String?
+  width            Int?
+  height           Int?
+  processingStatus PhotoProcessingStatus @default(UPLOADING)
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+
+  event         Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  detectedFaces DetectedFace[]
+  orderItems    OrderItem[]
+
+  @@index([eventId])
+  @@index([processingStatus])
+  @@map("event_photos")
+}
+
+model DetectedFace {
+  id          String   @id @default(cuid())
+  photoId     String
+  boundingBox Json // Bounding box coords: { "x": float, "y": float, "w": float, "h": float }
+  confidence  Float
+  embedding   Float[] // Native PostgreSQL float array for face embeddings
+  createdAt   DateTime @default(now())
+
+  photo EventPhoto @relation(fields: [photoId], references: [id], onDelete: Cascade)
+
+  @@index([photoId])
+  @@map("detected_faces")
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  eventId   String
+  buyerId   String? // Nullable for guest checkout
+  status    OrderStatus @default(PENDING)
+  subtotal  Int // Integer minor currency units
+  total     Int // Integer minor currency units
+  currency  String      @default("THB")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  event     Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  buyer     User?       @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+  items     OrderItem[]
+  payment   Payment?
+  downloads Download[]
+
+  @@index([eventId])
+  @@index([buyerId])
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  photoId   String
+  unitPrice Int // Integer minor currency units
+  createdAt DateTime @default(now())
+
+  order     Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  photo     EventPhoto @relation(fields: [photoId], references: [id], onDelete: Restrict)
+  downloads Download[]
+
+  @@unique([orderId, photoId])
+  @@index([orderId])
+  @@index([photoId])
+  @@map("order_items")
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  orderId     String        @unique
+  provider    String // e.g. "STRIPE", "PROMPTPAY", "MOCK"
+  providerRef String?       @unique // Transaction/intent reference ID
+  amount      Int // Integer minor currency units
+  status      PaymentStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@map("payments")
+}
+
+model Download {
+  id           String   @id @default(cuid())
+  orderItemId  String
+  orderId      String
+  downloadedAt DateTime @default(now())
+  ipAddress    String?
+  userAgent    String?
+  metadata     Json?
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  order     Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderItemId])
+  @@index([orderId])
+  @@map("downloads")
+}
