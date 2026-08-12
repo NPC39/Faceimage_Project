@@ -217,11 +217,36 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               <div className="p-2.5 rounded bg-slate-950 font-mono text-indigo-300 text-xs truncate border border-slate-800">
                 {publicPath}
               </div>
-              <p className="text-slate-400 text-[11px] leading-relaxed">
-                Future public customer experience route. The full storefront will be activated in Phase 10.
-              </p>
+              
+              {event.status === 'PUBLISHED' ? (
+                <div className="space-y-2 pt-1">
+                  <Link
+                    href={publicPath}
+                    target="_blank"
+                    className={buttonVariants({
+                      variant: 'outline',
+                      size: 'sm',
+                      className: 'w-full border-emerald-500/40 bg-emerald-950/40 text-emerald-300 hover:bg-emerald-900/60 gap-2 text-xs font-semibold',
+                    })}
+                  >
+                    <LinkIcon className="h-3.5 w-3.5" />
+                    <span>View Public Page</span>
+                  </Link>
+                  <p className="text-slate-400 text-[11px] leading-relaxed">
+                    Share this link with event attendees to let them find their photos using AI face search.
+                  </p>
+                </div>
+              ) : (
+                <div className="p-2.5 rounded bg-amber-950/40 border border-amber-800/40 text-amber-300 text-[11px] leading-relaxed space-y-1">
+                  <div className="font-semibold">Event Not Published</div>
+                  <p className="text-amber-400/90 text-[10px]">
+                    This event must be published in settings before customers can access the public link.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
+
 
           {/* System & Ownership Info */}
           <Card className="bg-slate-900/80 border-slate-800 text-white">

@@ -21,7 +21,9 @@ Phase 5 introduces full server-side Event CRUD management for authenticated user
 | :--- | :--- | :--- |
 | `/dashboard/events` | Server Page | Lists all events owned by current user with real photo counts. Displays honest empty state if 0 events exist. |
 | `/dashboard/events/new` | Client Page | Production form to create a new photo event. |
-| `/dashboard/events/[id]` | Server Page | Event detail overview displaying metadata, status, pricing, real photo count, and public share URL placeholder (`/event/[slug]`). |
+| `/dashboard/events/[id]` | Server Page | Event detail overview displaying metadata, status, pricing, real photo count, and active public share URL (`/event/[slug]`). |
+| `/event/[slug]` | Server Page | Public customer event storefront displaying event details, pricing, available photo count, and face search CTA (Phase 10). |
+
 | `/dashboard/events/[id]/photos` | Server/Client | Drag & Drop multi-photo upload management page with real-time progress, retry, thumbnail grid, and photo deletion. |
 | `/dashboard/events/[id]/settings` | Client Page | Edit event details, update status (`DRAFT`, `PUBLISHED`, `ARCHIVED`), and permanently delete event. |
 | `/api/events` | Route Handler | `GET` (list owned events), `POST` (create event for session user). |
