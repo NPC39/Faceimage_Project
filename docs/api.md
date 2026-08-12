@@ -18,8 +18,10 @@
 | `POST` | `/api/v1/faces/compare` | Compare primary faces from two images | Internal / Dev |
 | `POST` | `/api/events/[id]/photos/[photoId]/process` | Process single photo AI pipeline | Creator (Next.js) |
 | `POST` | `/api/events/[id]/photos/process-all` | Batch-process event photos AI pipeline | Creator (Next.js) |
+| `POST` | `/api/public/events/[slug]/face-search` | Search photos in a published event via selfie | Public / Customer |
 
 > **Header Security**: Backend `/api/v1/faces/*` endpoints validate `X-Internal-API-Key` header when `FACE_SERVICE_API_KEY` is configured.
+
 
 
 ---
