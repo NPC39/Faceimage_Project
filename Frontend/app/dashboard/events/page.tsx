@@ -19,6 +19,11 @@ export default async function EventsPage() {
     where: {
       creatorId: user.id,
     },
+    include: {
+      _count: {
+        select: { photos: true },
+      },
+    },
     orderBy: {
       createdAt: 'desc',
     },
@@ -36,6 +41,7 @@ export default async function EventsPage() {
     status: e.status as 'DRAFT' | 'PROCESSING' | 'PUBLISHED' | 'ARCHIVED',
     createdAt: e.createdAt,
     updatedAt: e.updatedAt,
+    photoCount: e._count.photos,
   }));
 
   return (

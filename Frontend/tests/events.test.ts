@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '../lib/prisma';
 import { createEventSchema, updateEventSchema } from '../lib/validation/event';
 import { generateUniqueSlug, slugify } from '../lib/events/slug';
+import { getStorageProvider } from '../lib/storage';
+import { PhotoProcessingStatus } from '@prisma/client';
 
 async function runEventCrudTests() {
   console.log('🧪 Starting Phase 5 Event CRUD Unit Tests...\n');
@@ -174,16 +176,66 @@ async function runEventCrudTests() {
     assert.equal(originalCreatorId, userAId, 'creatorId remains unchanged');
     console.log('✅ PASS: creatorId field immutability verified.\n');
 
-    // 11. User can delete own Event
-    console.log('Test 11: User A deletes Event 2...');
+    // 11. User can delete own Event and physical storage files
+    console.log('Test 11: User A deletes Event 2 with storage cleanup...');
+    const storage = getStorageProvider();
+    const testPhotoKeyOrig = `events/${event2Id}/test_photo_del/original.jpg`;
+    const testPhotoKeyPrev = `events/${event2Id}/test_photo_del/preview.webp`;
+    const testPhotoKeyThumb = `events/${event2Id}/test_photo_del/thumbnail.webp`;
+
+    await storage.saveObject(testPhotoKeyOrig, Buffer.from('test_orig_bytes'));
+    await storage.saveObject(testPhotoKeyPrev, Buffer.from('test_prev_bytes'));
+    await storage.saveObject(testPhotoKeyThumb, Buffer.from('test_thumb_bytes'));
+
+    const testPhotoRecord = await prisma.eventPhoto.create({
+      data: {
+        id: `ph_event_del_${Date.now()}`,
+        eventId: event2Id,
+        originalKey: testPhotoKeyOrig,
+        previewKey: testPhotoKeyPrev,
+        thumbnailKey: testPhotoKeyThumb,
+        processingStatus: PhotoProcessingStatus.UPLOADED,
+      },
+    });
+
+    assert.ok(await storage.exists(testPhotoKeyOrig), 'Original storage file exists before deletion');
+    assert.ok(await storage.exists(testPhotoKeyPrev), 'Preview storage file exists before deletion');
+    assert.ok(await storage.exists(testPhotoKeyThumb), 'Thumbnail storage file exists before deletion');
+
+    // Simulate API deletion logic: clean storage files first, then delete event
+    const photosToDelete = await prisma.eventPhoto.findMany({
+      where: { eventId: event2Id },
+      select: { originalKey: true, previewKey: true, thumbnailKey: true },
+    });
+
+    for (const p of photosToDelete) {
+      if (p.originalKey) await storage.deleteObject(p.originalKey);
+      if (p.previewKey) await storage.deleteObject(p.previewKey);
+      if (p.thumbnailKey) await storage.deleteObject(p.thumbnailKey);
+    }
+
+    // Verify already-missing file handling (idempotent ENOENT handling)
+    await storage.deleteObject(testPhotoKeyOrig); // Already deleted, should not throw
+
     await prisma.event.delete({
       where: { id: event2Id },
     });
+
     const deletedCheck = await prisma.event.findUnique({
       where: { id: event2Id },
     });
     assert.equal(deletedCheck, null, 'Deleted event must no longer exist in DB');
-    console.log('✅ PASS: Event 2 deleted successfully.\n');
+
+    const deletedPhotoCheck = await prisma.eventPhoto.findUnique({
+      where: { id: testPhotoRecord.id },
+    });
+    assert.equal(deletedPhotoCheck, null, 'Cascaded EventPhoto record must no longer exist in DB');
+
+    assert.equal(await storage.exists(testPhotoKeyOrig), false, 'Original storage file deleted');
+    assert.equal(await storage.exists(testPhotoKeyPrev), false, 'Preview storage file deleted');
+    assert.equal(await storage.exists(testPhotoKeyThumb), false, 'Thumbnail storage file deleted');
+
+    console.log('✅ PASS: Event 2 and associated storage files deleted successfully.\n');
 
     // 12. User cannot delete another User's Event
     console.log("Test 12: User B attempting to delete User A's Event 1...");

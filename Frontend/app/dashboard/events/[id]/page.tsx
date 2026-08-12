@@ -42,6 +42,10 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     notFound();
   }
 
+  const photoCount = await prisma.eventPhoto.count({
+    where: { eventId: event.id },
+  });
+
   const formattedDate = formatEventDate(event.eventDate);
   const formattedCreated = formatEventDate(event.createdAt);
   const priceDisplay = formatPrice(event.pricePerPhoto, event.pricingType as 'FREE' | 'PAID', event.currency);
@@ -69,6 +73,17 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
           subheading={`Created on ${formattedCreated} • Share slug: ${event.slug}`}
         >
           <div className="flex items-center gap-3">
+            <Link
+              href={`/dashboard/events/${event.id}/photos`}
+              className={buttonVariants({
+                size: 'sm',
+                className: 'bg-indigo-600 hover:bg-indigo-500 text-white gap-2 text-xs font-medium',
+              })}
+            >
+              <ImageIcon className="h-3.5 w-3.5" />
+              <span>Manage Photos ({photoCount})</span>
+            </Link>
+
             <Link
               href={`/dashboard/events/${event.id}/settings`}
               className={buttonVariants({
@@ -142,24 +157,47 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
             </CardContent>
           </Card>
 
-          {/* Photo Management Placeholder Section */}
-          <Card className="bg-slate-900/40 border-slate-800/80 text-white">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base font-semibold flex items-center gap-2 text-slate-300">
-                <ImageIcon className="h-4 w-4 text-purple-400" />
-                <span>Photos & Gallery</span>
-              </CardTitle>
-              <CardDescription className="text-xs text-slate-400">
-                Manage uploaded photos for this event.
-              </CardDescription>
+          {/* Photo Management Section */}
+          <Card className="bg-slate-900/80 border-slate-800 text-white">
+            <CardHeader className="pb-3 border-b border-slate-800/80">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-base font-semibold flex items-center gap-2 text-white">
+                    <ImageIcon className="h-4 w-4 text-purple-400" />
+                    <span>Photos & Gallery</span>
+                  </CardTitle>
+                  <CardDescription className="text-xs text-slate-400">
+                    Manage uploaded photos for this event.
+                  </CardDescription>
+                </div>
+                <Badge variant="outline" className="border-purple-500/30 bg-purple-950/30 text-purple-300 text-xs px-2.5 py-0.5 font-semibold">
+                  {photoCount} {photoCount === 1 ? 'Photo' : 'Photos'}
+                </Badge>
+              </div>
             </CardHeader>
-            <CardContent className="pt-2">
-              <div className="p-6 rounded-lg bg-slate-950/60 border border-dashed border-slate-800 text-center space-y-2">
-                <ImageIcon className="h-8 w-8 text-slate-600 mx-auto" />
-                <div className="text-sm font-medium text-slate-300">Photo Upload System</div>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                  Photo upload, processing, and gallery management will be enabled in Phase 6.
-                </p>
+            <CardContent className="pt-6">
+              <div className="p-6 rounded-lg bg-slate-950/60 border border-slate-800 text-center space-y-3">
+                <ImageIcon className="h-8 w-8 text-indigo-400 mx-auto" />
+                <div className="space-y-1">
+                  <div className="text-sm font-semibold text-white">
+                    {photoCount === 0 ? 'No photos uploaded yet' : `${photoCount} photos uploaded`}
+                  </div>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                    Upload, organize, retry, and view high-resolution event photos.
+                  </p>
+                </div>
+                <div className="pt-2">
+                  <Link
+                    href={`/dashboard/events/${event.id}/photos`}
+                    className={buttonVariants({
+                      size: 'sm',
+                      className: 'bg-indigo-600 hover:bg-indigo-500 text-white gap-2 text-xs font-medium',
+                    })}
+                  >
+                    <ImageIcon className="h-3.5 w-3.5" />
+                    <span>Manage Photos</span>
+                  </Link>
+                </div>
               </div>
             </CardContent>
           </Card>

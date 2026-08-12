@@ -29,6 +29,12 @@ export default async function DashboardOverviewPage() {
       })
     : 0;
 
+  const totalPhotosCount = user
+    ? await prisma.eventPhoto.count({
+        where: { event: { creatorId: user.id } },
+      })
+    : 0;
+
   const recentEvents = user
     ? await prisma.event.findMany({
         where: { creatorId: user.id },
@@ -47,7 +53,7 @@ export default async function DashboardOverviewPage() {
     },
     {
       title: 'Total Photos',
-      value: '0',
+      value: totalPhotosCount.toString(),
       description: 'Total uploaded photos',
       icon: ImageIcon,
       iconColor: 'text-purple-400',

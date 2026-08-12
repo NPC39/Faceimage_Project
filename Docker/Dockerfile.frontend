@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for Next.js Frontend
 FROM node:20-alpine AS base
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl su-exec
 
 # Step 1: Install dependencies
 FROM base AS deps
@@ -27,12 +27,16 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Create public directory and copy public assets if present
-RUN mkdir -p public
+# Create public and storage directories with non-root ownership (1001:65533)
+RUN mkdir -p public storage && chown -R 1001:65533 /app/public /app/storage
+
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+
+COPY Docker/docker-entrypoint.frontend.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 USER nextjs
 
@@ -41,4 +45,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["node", "server.js"]

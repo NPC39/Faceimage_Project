@@ -21,6 +21,12 @@ dist/
 .env.test.local
 .env.production.local
 
+# Private Photo Storage
+storage/
+uploads/
+Frontend/storage/
+Frontend/uploads/
+
 # Logs
 npm-debug.log*
 yarn-debug.log*

@@ -45,10 +45,16 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-photomarket}
       - NEXTAUTH_URL=http://localhost:3000
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-development_secret_change_in_production_32bytes_min}
+      - STORAGE_PROVIDER=local
+      - LOCAL_STORAGE_ROOT=/app/storage
+      - MAX_PHOTO_UPLOAD_MB=20
     ports:
       - "3000:3000"
+    volumes:
+      - photo_storage:/app/storage
     depends_on:
       - backend
 
 volumes:
   postgres_data:
+  photo_storage:

@@ -17,6 +17,7 @@ export interface EventData {
   status: 'DRAFT' | 'PROCESSING' | 'PUBLISHED' | 'ARCHIVED';
   createdAt: Date | string;
   updatedAt?: Date | string;
+  photoCount?: number;
 }
 
 interface EventCardProps {
@@ -85,9 +86,17 @@ export function EventCard({ event }: EventCardProps) {
           </p>
         )}
 
-        <div className="flex items-center gap-2 text-xs text-slate-400 pt-1">
-          <Calendar className="h-3.5 w-3.5 text-indigo-400" />
-          <span>{formattedDate}</span>
+        <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
+          <div className="flex items-center gap-1.5">
+            <Calendar className="h-3.5 w-3.5 text-indigo-400" />
+            <span>{formattedDate}</span>
+          </div>
+
+          {typeof event.photoCount === 'number' && (
+            <span className="text-[11px] text-slate-400 font-medium">
+              {event.photoCount} {event.photoCount === 1 ? 'photo' : 'photos'}
+            </span>
+          )}
         </div>
       </CardContent>
 

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth/get-current-user';
 import { prisma } from '@/lib/prisma';
 import { updateEventSchema } from '@/lib/validation/event';
+import { getStorageProvider } from '@/lib/storage';
 
 interface RouteParams {
   params: {
@@ -140,11 +141,21 @@ export async function DELETE(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Verify event existence & ownership
+    // Verify event existence & ownership, including associated photos for storage cleanup
     const existingEvent = await prisma.event.findFirst({
       where: {
         id: params.id,
         creatorId: user.id,
+      },
+      include: {
+        photos: {
+          select: {
+            id: true,
+            originalKey: true,
+            previewKey: true,
+            thumbnailKey: true,
+          },
+        },
       },
     });
 
@@ -152,6 +163,26 @@ export async function DELETE(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: 'Event not found' }, { status: 404 });
     }
 
+    // Clean up physical private storage files for all associated EventPhotos
+    const storage = getStorageProvider();
+    const cleanupPromises: Promise<void>[] = [];
+
+    for (const photo of existingEvent.photos) {
+      if (photo.originalKey) {
+        cleanupPromises.push(storage.deleteObject(photo.originalKey));
+      }
+      if (photo.previewKey) {
+        cleanupPromises.push(storage.deleteObject(photo.previewKey));
+      }
+      if (photo.thumbnailKey) {
+        cleanupPromises.push(storage.deleteObject(photo.thumbnailKey));
+      }
+    }
+
+    // Await all storage file deletions before deleting DB record
+    await Promise.all(cleanupPromises);
+
+    // Delete Event DB record (Prisma onDelete: Cascade removes EventPhoto DB records)
     await prisma.event.delete({
       where: {
         id: params.id,
@@ -162,10 +193,10 @@ export async function DELETE(req: Request, { params }: RouteParams) {
       message: 'Event deleted successfully',
       deletedId: params.id,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error(`DELETE /api/events/${params.id} error:`, error);
     return NextResponse.json(
-      { error: 'An unexpected error occurred while deleting event.' },
+      { error: error.message || 'An unexpected error occurred while deleting event.' },
       { status: 500 }
     );
   }

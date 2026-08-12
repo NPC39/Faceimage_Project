@@ -25,6 +25,7 @@ enum EventStatus {
 
 enum PhotoProcessingStatus {
   UPLOADING
+  UPLOADED
   PROCESSING
   READY
   FAILED
