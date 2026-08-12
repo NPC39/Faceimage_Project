@@ -10,14 +10,27 @@ ENV PYTHONUNBUFFERED=1
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     build-essential \
+    libgl1 \
+    libglib2.0-0 \
+    libgomp1 \
+    libxcb1 \
+    libx11-xcb1 \
     && rm -rf /var/lib/apt/lists/*
+
+
 
 # Copy python requirements
 COPY Backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --force-reinstall --no-cache-dir opencv-python-headless
+
+
+
+
 
 # Copy backend app source code
 COPY Backend/ ./
+
 
 EXPOSE 8000
 

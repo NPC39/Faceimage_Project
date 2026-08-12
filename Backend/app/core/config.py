@@ -28,6 +28,29 @@ class Settings(BaseSettings):
         description="PostgreSQL Database Connection String"
     )
 
+    # Face Recognition Settings
+    FACE_MODEL_NAME: str = "buffalo_l"
+    FACE_MODEL_PROVIDERS: Union[List[str], str] = ["CPUExecutionProvider"]
+    MAX_FACE_IMAGE_MB: int = 20
+    FACE_DET_THRESH: float = 0.5
+    MAX_IMAGE_PIXELS: int = 40_000_000  # Protection against image decompression bombs (~40 Megapixels)
+
+    @field_validator("FACE_MODEL_PROVIDERS", mode="before")
+    @classmethod
+    def assemble_face_model_providers(cls, v: Union[str, List[str]]) -> List[str]:
+        if isinstance(v, str):
+            if v.startswith("["):
+                import json
+                try:
+                    return json.loads(v)
+                except Exception:
+                    pass
+            return [i.strip() for i in v.split(",") if i.strip()]
+        elif isinstance(v, list):
+            return v
+        return ["CPUExecutionProvider"]
+
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

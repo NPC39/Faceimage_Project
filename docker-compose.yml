@@ -28,8 +28,16 @@ services:
       - PORT=8000
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-photomarket}
       - CORS_ORIGINS=["http://localhost:3000"]
+      - FACE_MODEL_NAME=buffalo_l
+      - FACE_MODEL_PROVIDERS=CPUExecutionProvider
+      - MAX_FACE_IMAGE_MB=20
     ports:
       - "8000:8000"
+    volumes:
+      - ~/.insightface:/root/.insightface
+      - ./Backend/app:/app/app
+
+
     depends_on:
       postgres:
         condition: service_healthy
@@ -58,3 +66,5 @@ services:
 volumes:
   postgres_data:
   photo_storage:
+  insightface_models:
+
