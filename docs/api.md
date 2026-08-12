@@ -16,6 +16,11 @@
 | `POST` | `/api/v1/faces/detect` | Detect faces & bounding boxes in an image | Internal / Service |
 | `POST` | `/api/v1/faces/embed` | Extract face detection & 512-dim embeddings | Internal / Service |
 | `POST` | `/api/v1/faces/compare` | Compare primary faces from two images | Internal / Dev |
+| `POST` | `/api/events/[id]/photos/[photoId]/process` | Process single photo AI pipeline | Creator (Next.js) |
+| `POST` | `/api/events/[id]/photos/process-all` | Batch-process event photos AI pipeline | Creator (Next.js) |
+
+> **Header Security**: Backend `/api/v1/faces/*` endpoints validate `X-Internal-API-Key` header when `FACE_SERVICE_API_KEY` is configured.
+
 
 ---
 

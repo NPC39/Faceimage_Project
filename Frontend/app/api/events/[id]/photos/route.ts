@@ -128,6 +128,11 @@ export async function GET(
       where: {
         eventId: event.id,
       },
+      include: {
+        _count: {
+          select: { detectedFaces: true },
+        },
+      },
       orderBy: {
         createdAt: 'desc',
       },

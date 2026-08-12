@@ -92,7 +92,8 @@ $$\text{similarity}(\mathbf{a}, \mathbf{b}) = \frac{\mathbf{a} \cdot \mathbf{b}}
 
 * **No Image Storage**: Image bytes are decoded directly in memory and discarded after request completion.
 * **No Biometric Logging**: Facial embeddings, image bytes, and raw face crops are NEVER printed to log files or persistent stdout.
-* **Internal Service Scoping**: Embedding extraction endpoints (`/api/v1/faces/embed`) are internal service APIs. Customer-facing web clients will never receive raw biometric vectors.
+* **Internal Service Scoping**: Embedding extraction endpoints (`/api/v1/faces/embed`) are internal service APIs protected by `X-Internal-API-Key`. In Phase 8, Next.js communicates server-to-server with these endpoints to populate `DetectedFace` records. Customer-facing web clients never receive raw biometric vectors. See [docs/photo-processing.md](file:///Users/nppn/Desktop/Project/docs/photo-processing.md).
+
 
 ---
 

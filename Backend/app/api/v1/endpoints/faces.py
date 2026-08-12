@@ -1,6 +1,7 @@
 import time
 import logging
-from fastapi import APIRouter, File, UploadFile, HTTPException, status
+from fastapi import APIRouter, File, UploadFile, HTTPException, Header, Depends, status
+from app.core.config import settings
 from app.schemas.face import (
     FaceDetectResponse,
     FaceEmbedResponse,
@@ -19,7 +20,19 @@ from app.services.face_service import (
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter()
+
+def verify_internal_api_key(x_internal_api_key: str = Header(None)) -> None:
+    """Verify internal service API key for face processing endpoints if configured."""
+    if settings.FACE_SERVICE_API_KEY:
+        if not x_internal_api_key or x_internal_api_key != settings.FACE_SERVICE_API_KEY:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or missing internal service API key."
+            )
+
+
+router = APIRouter(dependencies=[Depends(verify_internal_api_key)])
+
 
 
 @router.post(

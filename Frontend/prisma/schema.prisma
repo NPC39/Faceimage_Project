@@ -137,6 +137,7 @@ model EventPhoto {
   width            Int?
   height           Int?
   processingStatus PhotoProcessingStatus @default(UPLOADING)
+  processingError  String?
   createdAt        DateTime              @default(now())
   updatedAt        DateTime              @updatedAt
 

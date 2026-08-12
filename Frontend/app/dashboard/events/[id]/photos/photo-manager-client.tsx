@@ -34,7 +34,11 @@ interface PhotoRecord {
   width: number | null;
   height: number | null;
   processingStatus: string;
+  processingError?: string | null;
   createdAt: string;
+  _count?: {
+    detectedFaces: number;
+  };
 }
 
 interface UploadItem {
@@ -61,33 +65,42 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
   const [deletingPhotoId, setDeletingPhotoId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [selectedPreviewPhoto, setSelectedPreviewPhoto] = useState<PhotoRecord | null>(null);
+  const [isBatchProcessing, setIsBatchProcessing] = useState(false);
+  const [processingPhotoIds, setProcessingPhotoIds] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, faceCount?: number, error?: string | null) => {
     switch (status) {
       case 'UPLOADED':
         return (
-          <Badge variant="outline" className="bg-slate-950/80 border-emerald-500/40 text-emerald-400 text-[10px] backdrop-blur-sm px-2 py-0.5 font-medium">
+          <Badge variant="outline" className="bg-slate-950/80 border-slate-700 text-slate-300 text-[10px] backdrop-blur-sm px-2 py-0.5 font-medium">
             Uploaded
           </Badge>
         );
       case 'PROCESSING':
         return (
           <Badge variant="outline" className="bg-slate-950/80 border-blue-500/40 text-blue-300 text-[10px] backdrop-blur-sm px-2 py-0.5 flex items-center gap-1 font-medium">
-            <Loader2 className="h-3 w-3 animate-spin" />
-            <span>Processing</span>
+            <Loader2 className="h-3 w-3 animate-spin text-blue-400" />
+            <span>Processing...</span>
           </Badge>
         );
       case 'READY':
+        const count = faceCount ?? 0;
         return (
-          <Badge variant="outline" className="bg-slate-950/80 border-purple-500/40 text-purple-300 text-[10px] backdrop-blur-sm px-2 py-0.5 font-medium">
-            Ready
-          </Badge>
+          <div className="flex items-center gap-1">
+            <Badge variant="outline" className="bg-slate-950/80 border-emerald-500/40 text-emerald-400 text-[10px] backdrop-blur-sm px-2 py-0.5 font-medium">
+              Ready
+            </Badge>
+            <Badge variant="outline" className="bg-slate-950/80 border-purple-500/40 text-purple-300 text-[10px] backdrop-blur-sm px-1.5 py-0.5 font-mono">
+              {count} {count === 1 ? 'face' : 'faces'}
+            </Badge>
+          </div>
         );
       case 'FAILED':
         return (
-          <Badge variant="outline" className="bg-slate-950/80 border-rose-500/40 text-rose-400 text-[10px] backdrop-blur-sm px-2 py-0.5 font-medium">
-            Failed
+          <Badge variant="outline" className="bg-slate-950/80 border-rose-500/40 text-rose-400 text-[10px] backdrop-blur-sm px-2 py-0.5 font-medium flex items-center gap-1" title={error || 'Processing error'}>
+            <AlertCircle className="h-3 w-3" />
+            <span>Failed</span>
           </Badge>
         );
       default:
@@ -99,11 +112,96 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
     }
   };
 
+
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
+
+  const processSinglePhoto = useCallback(async (photoId: string) => {
+    setPhotos((prev) =>
+      prev.map((p) => (p.id === photoId ? { ...p, processingStatus: 'PROCESSING', processingError: null } : p))
+    );
+    try {
+      const res = await fetch(`/api/events/${event.id}/photos/${photoId}/process`, {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (res.ok && data.photo) {
+        setPhotos((prev) =>
+          prev.map((p) =>
+            p.id === photoId
+              ? {
+                  ...p,
+                  processingStatus: data.photo.processingStatus,
+                  processingError: data.photo.processingError,
+                  _count: { detectedFaces: data.photo.faceCount },
+                }
+              : p
+          )
+        );
+      } else {
+        setPhotos((prev) =>
+          prev.map((p) =>
+            p.id === photoId
+              ? { ...p, processingStatus: 'FAILED', processingError: data.error || 'PROCESSING_FAILED' }
+              : p
+          )
+        );
+      }
+    } catch {
+      setPhotos((prev) =>
+        prev.map((p) =>
+          p.id === photoId
+            ? { ...p, processingStatus: 'FAILED', processingError: 'NETWORK_ERROR' }
+            : p
+        )
+      );
+    }
+  }, [event.id]);
+
+  const processAllPhotos = useCallback(async () => {
+    setIsBatchProcessing(true);
+    try {
+      const res = await fetch(`/api/events/${event.id}/photos/process-all`, {
+        method: 'POST',
+      });
+      if (res.ok) {
+        const listRes = await fetch(`/api/events/${event.id}/photos`);
+        if (listRes.ok) {
+          const listData = await listRes.json();
+          if (listData.photos) {
+            setPhotos(listData.photos);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Batch processing error:', err);
+    } finally {
+      setIsBatchProcessing(false);
+    }
+  }, [event.id]);
+
+  // Polling loop while any photo is PROCESSING
+  useEffect(() => {
+    const hasProcessing = photos.some((p) => p.processingStatus === 'PROCESSING');
+    if (!hasProcessing) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/events/${event.id}/photos`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.photos) {
+            setPhotos(data.photos);
+          }
+        }
+      } catch {}
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [event.id, photos]);
 
   const uploadSingleFile = useCallback(
     (item: UploadItem) => {
@@ -141,6 +239,11 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
               const filteredNew = newPhotos.filter((p) => !existingIds.has(p.id));
               return [...filteredNew, ...prev];
             });
+
+            // Auto-trigger AI processing for newly uploaded photos
+            newPhotos.forEach((p) => {
+              processSinglePhoto(p.id);
+            });
           } catch {
             setUploadQueue((prev) =>
               prev.map((q) => (q.id === item.id ? { ...q, status: 'FAILED', error: 'Failed to parse response' } : q))
@@ -166,8 +269,9 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
 
       xhr.send(formData);
     },
-    [event.id]
+    [event.id, processSinglePhoto]
   );
+
 
   // Concurrency Queue Loop
   useEffect(() => {
@@ -280,6 +384,22 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
           subheading={`Upload and organize high-resolution photos for event "${event.slug}"`}
         >
           <div className="flex items-center gap-3">
+            {photos.some((p) => p.processingStatus === 'UPLOADED' || p.processingStatus === 'FAILED') && (
+              <Button
+                type="button"
+                size="sm"
+                onClick={processAllPhotos}
+                disabled={isBatchProcessing}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs gap-1.5 h-8"
+              >
+                {isBatchProcessing ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-3.5 w-3.5" />
+                )}
+                <span>Process Uploaded Photos</span>
+              </Button>
+            )}
             <Badge variant="outline" className="border-indigo-500/30 bg-indigo-950/30 text-indigo-300 px-3 py-1 text-xs">
               <ImageIcon className="h-3.5 w-3.5 mr-1.5" />
               <span>{photos.length} Photos Uploaded</span>
@@ -479,12 +599,27 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
                     />
 
                     {/* Status Badge */}
-                    <div className="absolute top-2 left-2">
-                      {getStatusBadge(photo.processingStatus)}
+                    <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
+                      {getStatusBadge(photo.processingStatus, photo._count?.detectedFaces, photo.processingError)}
                     </div>
 
-                    {/* Delete Action Trigger */}
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {/* Delete & Retry Action Triggers */}
+                    <div className="absolute top-2 right-2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {photo.processingStatus === 'FAILED' && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            processSinglePhoto(photo.id);
+                          }}
+                          className="h-7 px-2 bg-slate-950/80 hover:bg-indigo-950 text-indigo-300 hover:text-indigo-200 border border-slate-800 rounded-md backdrop-blur-sm text-[11px] gap-1"
+                        >
+                          <RefreshCw className="h-3 w-3" />
+                          <span>Retry</span>
+                        </Button>
+                      )}
                       <Button
                         type="button"
                         variant="ghost"
@@ -515,6 +650,11 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
                         </span>
                       )}
                     </div>
+                    {photo.processingError && (
+                      <p className="text-[10px] text-rose-400 font-mono truncate">
+                        Error: {photo.processingError}
+                      </p>
+                    )}
                   </div>
 
                   {/* Delete Confirmation Overlay */}
@@ -588,7 +728,8 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
               </div>
 
               <div className="flex items-center gap-3">
-                {getStatusBadge(selectedPreviewPhoto.processingStatus)}
+                {getStatusBadge(selectedPreviewPhoto.processingStatus, selectedPreviewPhoto._count?.detectedFaces, selectedPreviewPhoto.processingError)}
+
 
                 <button
                   type="button"

@@ -28,7 +28,8 @@ Prisma schema status enum values:
 - `FAILED`: Image decoding, variant generation, or upload failure.
 
 > [!NOTE]
-> In Phase 6, successfully saved photos are assigned `processingStatus: PhotoProcessingStatus.UPLOADED`. Photos will transition to `PROCESSING` and then `READY` in Phase 8 once face detection runs.
+> Successfully saved photos are assigned `processingStatus: PhotoProcessingStatus.UPLOADED`. Photos transition to `PROCESSING` and then `READY` (or `FAILED`) via the Phase 8 face processing pipeline. See [docs/photo-processing.md](file:///Users/nppn/Desktop/Project/docs/photo-processing.md).
+
 
 ---
 

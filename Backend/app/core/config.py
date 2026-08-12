@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     MAX_FACE_IMAGE_MB: int = 20
     FACE_DET_THRESH: float = 0.5
     MAX_IMAGE_PIXELS: int = 40_000_000  # Protection against image decompression bombs (~40 Megapixels)
+    FACE_SERVICE_API_KEY: str = ""  # Internal service API key for server-to-server security
+
 
     @field_validator("FACE_MODEL_PROVIDERS", mode="before")
     @classmethod

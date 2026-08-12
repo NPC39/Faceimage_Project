@@ -31,6 +31,7 @@ services:
       - FACE_MODEL_NAME=buffalo_l
       - FACE_MODEL_PROVIDERS=CPUExecutionProvider
       - MAX_FACE_IMAGE_MB=20
+      - FACE_SERVICE_API_KEY=${FACE_SERVICE_API_KEY:-}
     ports:
       - "8000:8000"
     volumes:
@@ -56,6 +57,11 @@ services:
       - STORAGE_PROVIDER=local
       - LOCAL_STORAGE_ROOT=/app/storage
       - MAX_PHOTO_UPLOAD_MB=20
+      - FACE_SERVICE_URL=http://backend:8000
+      - FACE_SERVICE_API_KEY=${FACE_SERVICE_API_KEY:-}
+      - FACE_SERVICE_TIMEOUT_MS=60000
+      - FACE_PROCESSING_CONCURRENCY=2
+
     ports:
       - "3000:3000"
     volumes:
