@@ -1,14 +1,17 @@
-# Creator Dashboard UI Foundation
+# Creator Dashboard Architecture
 
-This document outlines the architecture and design of the Creator Dashboard UI foundation introduced in Phase 4.
+This document outlines the architecture and design of the Creator Dashboard, updated for Phase 5 Event CRUD integration.
 
 ## Route Structure
 
-- `/dashboard`: Main Overview page displaying welcome section, summary metric cards, recent event/order empty states, and auth identity badge.
-- `/dashboard/events`: Events page foundation introducing event creator workflow.
-- `/dashboard/orders`: Orders page foundation introducing event sales and order tracking.
+- `/dashboard`: Main Overview page displaying welcome section, real summary metric cards (`Total Events` connected to live PostgreSQL query), recent events list, and auth identity badge.
+- `/dashboard/events`: Events management page listing all photo events created by the logged-in user. Displays `EmptyState` with a direct link to create an event if 0 events exist.
+- `/dashboard/events/new`: Event creation page with server-validated form (name, description, date, pricing model, currency).
+- `/dashboard/events/[id]`: Event overview page showing metadata, status, pricing, public URL slug (`/event/[slug]`), and settings action link.
+- `/dashboard/events/[id]/settings`: Event settings page allowing creators to update details, toggle status (`DRAFT`, `PUBLISHED`, `ARCHIVED`), and permanently delete events.
+- `/dashboard/orders`: Orders page foundation introducing event sales and order tracking (Phase 13).
 
-All `/dashboard` routes are protected server-side via NextAuth middleware (`middleware.ts`) and wrap children inside the authenticated layout.
+All `/dashboard` routes are protected server-side via NextAuth session validation and `getCurrentUser()`.
 
 ## Layout & Navigation Architecture
 
@@ -37,12 +40,11 @@ All dashboard-specific presentation components reside in `Frontend/components/da
 - `dashboard-header.tsx`: Page context header.
 - `stat-card.tsx`: Metric card component.
 - `empty-state.tsx`: Standardized empty state card.
+- `event-card.tsx`: Real Event presentation card component displaying name, date, status, FREE/PAID price, and manage action link.
 
-## Phase Boundaries & Deferred Capabilities
+## Phase Integration & Boundaries
 
-The Phase 4 Creator Dashboard establishes UI layout and navigation foundations. The following capabilities are intentionally deferred to future implementation phases:
-
-- **Phase 5**: Event CRUD (creating, editing, and deleting photo events, `/dashboard/events/new`).
+- **Phase 5 (Active)**: Full Event CRUD management, real event count on overview, recent event list, unique slug generation, server-authoritative ownership.
 - **Phase 6**: Photo upload and storage pipeline.
 - **Phase 7–9**: AI Face Recognition, processing pipeline, and face search.
 - **Phase 13**: Order processing, cart, and order management.
