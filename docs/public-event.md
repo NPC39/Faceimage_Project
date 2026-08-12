@@ -12,10 +12,11 @@ flowchart TD
     C --> E[Display Event Name, Date, Description]
     C --> F[Display Pricing Badge & Ready Photo Count]
     C --> G[Display Find My Photos CTA & Privacy Guarantee]
-    C --> H[Selfie Upload UI Pending Phase 11]
+    C --> H[Active Search My Photos UI (Phase 11)]
 ```
 
 ### Core Security & Privacy Guarantees
+
 
 1. **PUBLISHED-Only Access Control**: The public page renders ONLY for events where `status === 'PUBLISHED'`. `DRAFT` or `ARCHIVED` events return a privacy-preserving `404 Not Found` before loading event metadata.
 2. **Logged-Out Public Accessibility**: Customers do not need Creator accounts or authentication to view published event pages.

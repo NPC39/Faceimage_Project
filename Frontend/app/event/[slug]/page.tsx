@@ -16,6 +16,8 @@ import { EventStatus, PhotoProcessingStatus } from '@prisma/client';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatEventDate, formatPrice } from '@/components/dashboard/event-card';
+import { SearchMyPhotosSection } from '@/components/public/search-my-photos-section';
+
 
 interface PublicEventPageProps {
   params: {
@@ -184,64 +186,14 @@ export default async function PublicEventPage({ params }: PublicEventPageProps) 
           </div>
         </div>
 
-        {/* Find My Photos Call to Action Section */}
-        <Card className="bg-slate-900/90 border-slate-800 text-white overflow-hidden shadow-xl">
-          <CardContent className="p-6 sm:p-10 space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="space-y-3 max-w-xl">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-950/60 border border-indigo-800/60 text-indigo-300 text-xs font-semibold">
-                  <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
-                  <span>AI-Powered Face Search</span>
-                </div>
+        {/* Interactive Search My Photos Section (Phase 11) */}
+        <SearchMyPhotosSection
+          eventSlug={event.slug}
+          readyPhotoCount={readyPhotoCount}
+          pricingType={event.pricingType as 'FREE' | 'PAID'}
+          priceDisplay={priceDisplay}
+        />
 
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-                  Find your photos in seconds
-                </h2>
-
-                <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-                  Upload a single selfie to quickly locate all photos of yourself taken during this event.
-                </p>
-              </div>
-
-              {/* Action Button Container */}
-              <div className="flex-shrink-0 w-full md:w-auto">
-                {readyPhotoCount > 0 ? (
-                  <div className="space-y-2">
-                    <button
-                      disabled
-                      className="w-full md:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-base shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-3 transition-all cursor-not-allowed opacity-90"
-                    >
-                      <Camera className="h-5 w-5" />
-                      <span>Find My Photos</span>
-                    </button>
-                    <p className="text-[11px] text-center text-slate-400 font-medium">
-                      Selfie upload UI coming next (Phase 11)
-                    </p>
-                  </div>
-                ) : (
-                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center space-y-2">
-                    <Lock className="h-5 w-5 text-amber-400 mx-auto" />
-                    <div className="text-xs font-semibold text-slate-200">Photos preparing</div>
-                    <p className="text-[11px] text-slate-400 max-w-xs">
-                      The event creator is currently processing photos. Please check back shortly.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Concise Customer Biometric Privacy Reassurance */}
-            <div className="pt-4 border-t border-slate-800/80 flex items-start gap-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800/60">
-              <ShieldCheck className="h-5 w-5 text-emerald-400 flex-shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <span className="text-xs font-semibold text-slate-200 block">Biometric Privacy Guarantee</span>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Your selfie is processed strictly in memory to search this event only and is never stored on our servers or shared with third parties.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </main>
 
       {/* Footer */}
