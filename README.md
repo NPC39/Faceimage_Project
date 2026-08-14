@@ -110,7 +110,26 @@ docker compose exec frontend npx prisma migrate deploy
 | :--- | :--- | :--- |
 | **Frontend Web App** | `http://localhost:3000` | Creator Dashboard, Public Event Storefront, & Face Search UI |
 | **Backend AI API** | `http://localhost:8000/health` | FastAPI System & InsightFace Model Health Check |
-| **PostgreSQL Database** | `localhost:5432` | Database (`photomarket` / user `postgres`) |
+| **Database GUI (Adminer)** | `http://localhost:8080` | PostgreSQL Browser GUI Management Interface |
+| **PostgreSQL Database** | `localhost:5432` | Database Port (TCP Connection Only) |
+
+### Database GUI — Adminer
+
+Adminer is available at:
+
+```text
+http://localhost:8080
+```
+
+Login instructions:
+
+* **System**: `PostgreSQL`
+* **Server**: `postgres`
+* **Username**: value from `POSTGRES_USER` (default: `postgres`)
+* **Password**: value from `POSTGRES_PASSWORD` (default: `postgres`)
+* **Database**: value from `POSTGRES_DB` (default: `photomarket`)
+
+Note: `localhost:5432` is the PostgreSQL database connection port and is NOT a webpage that can be opened directly in a browser.
 
 ---
 

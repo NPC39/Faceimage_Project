@@ -69,6 +69,15 @@ services:
     depends_on:
       - backend
 
+  adminer:
+    image: adminer
+    container_name: photo_marketplace_adminer
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+
 volumes:
   postgres_data:
   photo_storage:
