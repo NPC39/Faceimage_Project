@@ -1,0 +1,413 @@
+{
+  "dataset": "stage-c",
+  "description": "Stage C Face Recognition Calibration Dataset (P015-P024)",
+  "event_photos": [
+    {
+      "photo_id": "C001",
+      "filename": "E032.jpg",
+      "path": "dataset/event/E032.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": [
+        "P017"
+      ]
+    },
+    {
+      "photo_id": "C002",
+      "filename": "E033.jpg",
+      "path": "dataset/event/E033.jpg",
+      "photo_type": "GROUP",
+      "visible_face_count": 11,
+      "persons_present": [
+        "P022",
+        "P024"
+      ]
+    },
+    {
+      "photo_id": "C003",
+      "filename": "E034.jpg",
+      "path": "dataset/event/E034.jpg",
+      "photo_type": "GROUP",
+      "visible_face_count": 17,
+      "persons_present": [
+        "P017",
+        "P018",
+        "P019",
+        "P020",
+        "P021",
+        "P023"
+      ]
+    },
+    {
+      "photo_id": "C004",
+      "filename": "E035.jpg",
+      "path": "dataset/event/E035.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": [
+        "P019"
+      ]
+    },
+    {
+      "photo_id": "C005",
+      "filename": "E036.jpg",
+      "path": "dataset/event/E036.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": [
+        "P018"
+      ]
+    },
+    {
+      "photo_id": "C006",
+      "filename": "E037.jpg",
+      "path": "dataset/event/E037.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": [
+        "P017"
+      ]
+    },
+    {
+      "photo_id": "C007",
+      "filename": "E038.jpg",
+      "path": "dataset/event/E038.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": [
+        "P021"
+      ]
+    },
+    {
+      "photo_id": "C008",
+      "filename": "E039.jpg",
+      "path": "dataset/event/E039.jpg",
+      "photo_type": "GROUP",
+      "visible_face_count": 20,
+      "persons_present": [
+        "P017",
+        "P018",
+        "P020",
+        "P021",
+        "P023",
+        "P024"
+      ]
+    },
+    {
+      "photo_id": "C009",
+      "filename": "E040.jpg",
+      "path": "dataset/event/E040.jpg",
+      "photo_type": "GROUP",
+      "visible_face_count": 5,
+      "persons_present": [
+        "P022",
+        "P024"
+      ]
+    },
+    {
+      "photo_id": "C010",
+      "filename": "E041.jpg",
+      "path": "dataset/event/E041.jpg",
+      "photo_type": "GROUP",
+      "visible_face_count": 11,
+      "persons_present": [
+        "P022",
+        "P024"
+      ]
+    },
+    {
+      "photo_id": "C011",
+      "filename": "E042.jpg",
+      "path": "dataset/event/E042.jpg",
+      "photo_type": "GROUP",
+      "visible_face_count": 5,
+      "persons_present": [
+        "P018",
+        "P024"
+      ]
+    },
+    {
+      "photo_id": "C012",
+      "filename": "E043.jpg",
+      "path": "dataset/event/E043.jpg",
+      "photo_type": "GROUP",
+      "visible_face_count": 11,
+      "persons_present": [
+        "P022",
+        "P024"
+      ]
+    },
+    {
+      "photo_id": "C013",
+      "filename": "E044.jpg",
+      "path": "dataset/event/E044.jpg",
+      "photo_type": "SMALL",
+      "visible_face_count": 6,
+      "persons_present": [
+        "P015"
+      ]
+    },
+    {
+      "photo_id": "C014",
+      "filename": "E045.jpg",
+      "path": "dataset/event/E045.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": [
+        "P016"
+      ]
+    },
+    {
+      "photo_id": "C015",
+      "filename": "E046.jpg",
+      "path": "dataset/event/E046.jpg",
+      "photo_type": "PAIR",
+      "visible_face_count": 2,
+      "persons_present": [
+        "P017",
+        "P021"
+      ]
+    },
+    {
+      "photo_id": "C016",
+      "filename": "E047.jpg",
+      "path": "dataset/event/E047.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": [
+        "P024"
+      ]
+    },
+    {
+      "photo_id": "C017",
+      "filename": "E048.jpg",
+      "path": "dataset/event/E048.jpg",
+      "photo_type": "GROUP",
+      "visible_face_count": 10,
+      "persons_present": [
+        "P015",
+        "P016"
+      ]
+    },
+    {
+      "photo_id": "C018",
+      "filename": "E049.jpg",
+      "path": "dataset/event/E049.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": [
+        "P017"
+      ]
+    },
+    {
+      "photo_id": "C019",
+      "filename": "E050.jpg",
+      "path": "dataset/event/E050.jpg",
+      "photo_type": "SMALL",
+      "visible_face_count": 5,
+      "persons_present": [
+        "P018",
+        "P019",
+        "P020",
+        "P023"
+      ]
+    },
+    {
+      "photo_id": "C020",
+      "filename": "E051.jpg",
+      "path": "dataset/event/E051.jpg",
+      "photo_type": "SMALL",
+      "visible_face_count": 5,
+      "persons_present": [
+        "P016"
+      ]
+    },
+    {
+      "photo_id": "C021",
+      "filename": "E052.jpg",
+      "path": "dataset/event/E052.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": [
+        "P016"
+      ]
+    },
+    {
+      "photo_id": "C022",
+      "filename": "E053.jpg",
+      "path": "dataset/event/E053.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": [
+        "P015"
+      ]
+    },
+    {
+      "photo_id": "C023",
+      "filename": "E054.jpg",
+      "path": "dataset/event/E054.jpg",
+      "photo_type": "GROUP",
+      "visible_face_count": 20,
+      "persons_present": [
+        "P017",
+        "P020",
+        "P021",
+        "P023",
+        "P024"
+      ]
+    },
+    {
+      "photo_id": "C024",
+      "filename": "E055.jpg",
+      "path": "dataset/event/E055.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": [
+        "P024"
+      ]
+    },
+    {
+      "photo_id": "C025",
+      "filename": "E056.jpg",
+      "path": "dataset/event/E056.jpg",
+      "photo_type": "PAIR",
+      "visible_face_count": 2,
+      "persons_present": [
+        "P017",
+        "P021"
+      ]
+    },
+    {
+      "photo_id": "C026",
+      "filename": "E057.jpg",
+      "path": "dataset/event/E057.jpg",
+      "photo_type": "SMALL",
+      "visible_face_count": 3,
+      "persons_present": [
+        "P018"
+      ]
+    },
+    {
+      "photo_id": "C027",
+      "filename": "E058.jpg",
+      "path": "dataset/event/E058.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": [
+        "P019"
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "query_id": "P015_Q01",
+      "person_id": "P015",
+      "path": "dataset/queries/P015_Q01.jpg"
+    },
+    {
+      "query_id": "P015_Q02",
+      "person_id": "P015",
+      "path": "dataset/queries/P015_Q02.jpg"
+    },
+    {
+      "query_id": "P016_Q01",
+      "person_id": "P016",
+      "path": "dataset/queries/P016_Q01.jpg"
+    },
+    {
+      "query_id": "P016_Q02",
+      "person_id": "P016",
+      "path": "dataset/queries/P016_Q02.jpg"
+    },
+    {
+      "query_id": "P017_Q01",
+      "person_id": "P017",
+      "path": "dataset/queries/P017_Q01.jpg"
+    },
+    {
+      "query_id": "P017_Q02",
+      "person_id": "P017",
+      "path": "dataset/queries/P017_Q02.jpg"
+    },
+    {
+      "query_id": "P018_Q01",
+      "person_id": "P018",
+      "path": "dataset/queries/P018_Q01.jpg"
+    },
+    {
+      "query_id": "P018_Q02",
+      "person_id": "P018",
+      "path": "dataset/queries/P018_Q02.jpg"
+    },
+    {
+      "query_id": "P019_Q01",
+      "person_id": "P019",
+      "path": "dataset/queries/P019_Q01.jpg"
+    },
+    {
+      "query_id": "P019_Q02",
+      "person_id": "P019",
+      "path": "dataset/queries/P019_Q02.jpg"
+    },
+    {
+      "query_id": "P019_Q03",
+      "person_id": "P019",
+      "path": "dataset/queries/P019_Q03.jpg"
+    },
+    {
+      "query_id": "P020_Q01",
+      "person_id": "P020",
+      "path": "dataset/queries/P020_Q01.jpg"
+    },
+    {
+      "query_id": "P020_Q02",
+      "person_id": "P020",
+      "path": "dataset/queries/P020_Q02.jpg"
+    },
+    {
+      "query_id": "P021_Q01",
+      "person_id": "P021",
+      "path": "dataset/queries/P021_Q01.jpg"
+    },
+    {
+      "query_id": "P021_Q02",
+      "person_id": "P021",
+      "path": "dataset/queries/P021_Q02.jpg"
+    },
+    {
+      "query_id": "P022_Q01",
+      "person_id": "P022",
+      "path": "dataset/queries/P022_Q01.jpg"
+    },
+    {
+      "query_id": "P022_Q02",
+      "person_id": "P022",
+      "path": "dataset/queries/P022_Q02.jpg"
+    },
+    {
+      "query_id": "P022_Q03",
+      "person_id": "P022",
+      "path": "dataset/queries/P022_Q03.jpg"
+    },
+    {
+      "query_id": "P023_Q01",
+      "person_id": "P023",
+      "path": "dataset/queries/P023_Q01.jpg"
+    },
+    {
+      "query_id": "P023_Q02",
+      "person_id": "P023",
+      "path": "dataset/queries/P023_Q02.jpg"
+    },
+    {
+      "query_id": "P024_Q01",
+      "person_id": "P024",
+      "path": "dataset/queries/P024_Q01.jpg"
+    },
+    {
+      "query_id": "P024_Q02",
+      "person_id": "P024",
+      "path": "dataset/queries/P024_Q02.jpg"
+    }
+  ]
+}

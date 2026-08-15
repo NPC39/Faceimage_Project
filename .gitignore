@@ -73,6 +73,12 @@ htmlcov/
 *.pt
 *.onnx
 *.engine
+experiments/face-calibration/dataset/
+experiments/face-calibration/results/
+experiments/face-calibration/manifest.json
+experiments/face-calibration/stage-b/
+experiments/face-calibration/stage-c/results/face-audit/annotated/
+experiments/face-calibration/stage-c/results/face-audit/index.html
 
 # IDEs & Editors
 .idea/
