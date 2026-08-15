@@ -1,0 +1,92 @@
+{
+  "description": "Stage C Authoritative Score Source-of-Truth Machine-Readable Locks",
+  "threshold": 0.4,
+  "p020_gt_targets": {
+    "C003_f13": {
+      "photo": "C003",
+      "filename": "E034.jpg",
+      "detection_id": "C003_f13",
+      "human_assignment": "P020",
+      "p020_r01_score": 0.3549378216266632,
+      "p020_r02_score": 0.507314920425415
+    },
+    "C008_f13": {
+      "photo": "C008",
+      "filename": "E039.jpg",
+      "detection_id": "C008_f13",
+      "human_assignment": "P020",
+      "p020_r01_score": 0.2929381132125854,
+      "p020_r02_score": 0.4058850109577179
+    },
+    "C019_f3": {
+      "photo": "C019",
+      "filename": "E050.jpg",
+      "detection_id": "C019_f3",
+      "human_assignment": "P020",
+      "p020_r01_score": 0.3895518481731415,
+      "p020_r02_score": 0.3195366263389587
+    },
+    "C023_f9": {
+      "photo": "C023",
+      "filename": "E054.jpg",
+      "detection_id": "C023_f9",
+      "human_assignment": "P020",
+      "p020_r01_score": 0.3233746290206909,
+      "p020_r02_score": 0.5921957492828369
+    }
+  },
+  "p020_different_controls": {
+    "C011_f0": {
+      "photo": "C011",
+      "filename": "E042.jpg",
+      "detection_id": "C011_f0",
+      "human_assignment": "OTHER",
+      "p020_r01_score": 0.22198018431663513,
+      "p020_r02_score": 0.30151936411857605
+    }
+  },
+  "disputed_pairs_reconciled": {
+    "P015_R01_C017_f5": {
+      "query": "P015_R01",
+      "photo": "C017",
+      "detection_id": "C017_f5",
+      "gt_person": "P015",
+      "similarity": 0.3063541054725647,
+      "historical_reported": 0.3541,
+      "status": "AUTHORITATIVE_CONFIRMED"
+    },
+    "P015_R01_C022_f0": {
+      "query": "P015_R01",
+      "photo": "C022",
+      "detection_id": "C022_f0",
+      "gt_person": "P015",
+      "similarity": 0.20122525095939636,
+      "historical_reported": 0.3421,
+      "status": "AUTHORITATIVE_CONFIRMED"
+    },
+    "P020_R01_C011_f0": {
+      "query": "P020_R01",
+      "photo": "C011",
+      "detection_id": "C011_f0",
+      "gt_person": "OTHER",
+      "similarity": 0.22198018431663513,
+      "historical_reported": 0.3015,
+      "status": "AUTHORITATIVE_CONFIRMED"
+    }
+  },
+  "control_locks": {
+    "P015_R01_C013_f5": 0.19190330803394318,
+    "P020_R01_C019_f3": 0.3895518481731415,
+    "P020_R01_C003_f13": 0.3549378216266632,
+    "P020_R01_C023_f9": 0.3233746290206909,
+    "P020_R02_C011_f0": 0.30151936411857605
+  },
+  "p022_r03_stress_locks": {
+    "C002_f0": 0.25380295515060425,
+    "C009_f0": 0.20921820402145386,
+    "C010_f10": 0.22451151907444,
+    "C012_f5": 0.37534356117248535,
+    "C013_f4_diff": 0.42293816804885864,
+    "C002_f7_diff": 0.3963683843612671
+  }
+}

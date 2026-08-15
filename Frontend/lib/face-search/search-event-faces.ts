@@ -109,7 +109,7 @@ export async function searchEventFaces(
   }
 
   // 4. Candidate Querying, Cosine Similarity & Threshold Filtering
-  const matchThreshold = parseFloat(process.env.FACE_MATCH_THRESHOLD || '0.60');
+  const matchThreshold = parseFloat(process.env.FACE_MATCH_THRESHOLD || '0.40');
   const maxResults = parseInt(process.env.FACE_SEARCH_MAX_RESULTS || '100', 10);
   const batchSize = parseInt(process.env.FACE_SEARCH_BATCH_SIZE || '500', 10);
 

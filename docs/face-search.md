@@ -11,7 +11,7 @@ flowchart LR
     C --> D[512D Query Embedding]
     D --> E[Event-Scoped DetectedFace Query]
     E --> F[Cosine Similarity Calculation]
-    F --> G[Threshold Filter >= 0.60]
+    F --> G[Threshold Filter >= 0.40]
     G --> H[Deduplicate EventPhoto]
     H --> I[Ranked Safe Result Payload]
 ```
@@ -30,7 +30,7 @@ flowchart LR
 * **Query Embedding Engine**: InsightFace `buffalo_l` (ArcFace ResNet50) via FastAPI server-to-server HTTP API
 * **Embedding Vector**: 512-dimensional L2-normalized float32 vector ($d = 512$)
 * **Similarity Metric**: Cosine Similarity / Dot Product ($S = \mathbf{q} \cdot \mathbf{c}$)
-* **Match Threshold**: `FACE_MATCH_THRESHOLD` (Provisional baseline: `0.60`)
+* **Match Threshold**: `FACE_MATCH_THRESHOLD` (Production value: `0.40`, validated on Stage A & held-out Stage B datasets)
 * **Max Upload Size**: `MAX_SELFIE_UPLOAD_MB` (Default: `10 MB`)
 * **Result Limit**: `FACE_SEARCH_MAX_RESULTS` (Default: `100`)
 * **Memory Batch Size**: `FACE_SEARCH_BATCH_SIZE` (Default: `500` candidate faces per DB read batch)
@@ -48,7 +48,7 @@ flowchart LR
    Loads candidate `DetectedFace` rows in batches of 500 where `photo.eventId === event.id` and `photo.processingStatus === READY`.
 5. **Similarity & Deduplication**:
    - Computes `cosineSimilarity(queryVector, candidateVector)`.
-   - Filters candidate faces where $\text{similarity} \ge 0.60$.
+   - Filters candidate faces where $\text{similarity} \ge 0.40$.
    - Deduplicates matches by `photoId`, keeping $\max(\text{similarity})$ score for each photo.
 6. **Ranking & Truncation**:
    Sorts matching photos by score descending (tie-broken deterministically by `photoId ASC`) and returns the top 100 photo IDs.
