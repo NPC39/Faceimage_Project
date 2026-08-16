@@ -11,7 +11,7 @@ flowchart LR
     C --> D[512D Query Embedding]
     D --> E[Event-Scoped DetectedFace Query]
     E --> F[Cosine Similarity Calculation]
-    F --> G[Threshold Filter >= 0.60]
+    F --> G[Threshold Filter >= 0.40]
     G --> H[Deduplicate EventPhoto]
     H --> I[Ranked Safe Result Payload]
 ```
@@ -30,7 +30,7 @@ flowchart LR
 * **Query Embedding Engine**: InsightFace `buffalo_l` (ArcFace ResNet50) via FastAPI server-to-server HTTP API
 * **Embedding Vector**: 512-dimensional L2-normalized float32 vector ($d = 512$)
 * **Similarity Metric**: Cosine Similarity / Dot Product ($S = \mathbf{q} \cdot \mathbf{c}$)
-* **Match Threshold**: `FACE_MATCH_THRESHOLD` (Provisional baseline: `0.60`)
+* **Match Threshold**: `FACE_MATCH_THRESHOLD` (Production value: `0.40`, validated on Stage A & held-out Stage B datasets)
 * **Max Upload Size**: `MAX_SELFIE_UPLOAD_MB` (Default: `10 MB`)
 * **Result Limit**: `FACE_SEARCH_MAX_RESULTS` (Default: `100`)
 * **Memory Batch Size**: `FACE_SEARCH_BATCH_SIZE` (Default: `500` candidate faces per DB read batch)
@@ -46,10 +46,12 @@ flowchart LR
    If zero faces are detected, the API returns HTTP `422 Unprocessable Entity` (`NO_FACE_DETECTED`).
 4. **Memory-Bounded Candidate Querying**:
    Loads candidate `DetectedFace` rows in batches of 500 where `photo.eventId === event.id` and `photo.processingStatus === READY`.
-5. **Similarity & Deduplication**:
-   - Computes `cosineSimilarity(queryVector, candidateVector)`.
-   - Filters candidate faces where $\text{similarity} \ge 0.60$.
-   - Deduplicates matches by `photoId`, keeping $\max(\text{similarity})$ score for each photo.
+5. **Similarity, Ambiguity Guard & Deduplication**:
+   - Computes `cosineSimilarity(queryVector, candidateVector)` for all detected faces in candidate photos.
+   - For each candidate photo, identifies highest similarity score ($\text{top}_1$) and second highest score ($\text{top}_2$, if present).
+   - Requires $\text{top}_1 \ge 0.40$.
+   - **Multi-Face Ambiguity Guard**: If both $\text{top}_1 \ge 0.40$ AND $\text{top}_2 \ge 0.40$, requires $\text{margin} = (\text{top}_1 - \text{top}_2) \ge 0.002$. Rejects ambiguous multi-face matches where $\text{margin} < 0.002$ (`AMBIGUOUS_REJECT`) to protect identity precision.
+   - For accepted photos, uses $\text{top}_1$ similarity score as the photo score.
 6. **Ranking & Truncation**:
    Sorts matching photos by score descending (tie-broken deterministically by `photoId ASC`) and returns the top 100 photo IDs.
 
