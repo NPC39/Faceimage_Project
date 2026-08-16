@@ -22,6 +22,8 @@ interface SearchMyPhotosSectionProps {
   readyPhotoCount: number;
   pricingType: 'FREE' | 'PAID';
   priceDisplay: string;
+  pricePerPhoto: number;
+  currency: string;
 }
 
 interface SearchResultItem {
@@ -41,7 +43,9 @@ export function SearchMyPhotosSection({
   eventSlug,
   readyPhotoCount,
   pricingType,
-  priceDisplay
+  priceDisplay,
+  pricePerPhoto,
+  currency
 }: SearchMyPhotosSectionProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -374,6 +378,8 @@ export function SearchMyPhotosSection({
           results={searchResults.results}
           pricingType={pricingType}
           priceDisplay={priceDisplay}
+          pricePerPhoto={pricePerPhoto}
+          currency={currency}
           onTryAnotherSelfie={handleRemoveFile}
         />
       )}

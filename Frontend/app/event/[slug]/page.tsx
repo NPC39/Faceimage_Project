@@ -186,12 +186,14 @@ export default async function PublicEventPage({ params }: PublicEventPageProps) 
           </div>
         </div>
 
-        {/* Interactive Search My Photos Section (Phase 11) */}
+        {/* Interactive Search My Photos Section (Phase 11 & Phase 2 Commerce) */}
         <SearchMyPhotosSection
           eventSlug={event.slug}
           readyPhotoCount={readyPhotoCount}
           pricingType={event.pricingType as 'FREE' | 'PAID'}
           priceDisplay={priceDisplay}
+          pricePerPhoto={event.pricePerPhoto}
+          currency={event.currency}
         />
 
       </main>
