@@ -13,7 +13,8 @@ import {
   Check, 
   Loader2, 
   ShieldCheck, 
-  AlertCircle 
+  AlertCircle,
+  Download
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -101,6 +102,31 @@ export function SearchResultsGallery({
   const unitPriceAmount = pricingType === 'FREE' ? 0 : pricePerPhoto;
   const estimatedTotal = selectedCount * unitPriceAmount;
 
+  // Single Photo Direct Download Trigger
+  const handleSingleDownload = (photoId: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    const downloadUrl = `/api/public/events/${eventSlug}/photos/${photoId}/download`;
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = '';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Batch / Multi Selected Photos Download Trigger
+  const handleDownloadSelected = async () => {
+    const selectedIds = Array.from(selectedPhotoIds);
+    for (let i = 0; i < selectedIds.length; i++) {
+      handleSingleDownload(selectedIds[i]);
+      if (i < selectedIds.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 350));
+      }
+    }
+  };
+
   const handleCreatePendingOrder = async () => {
     if (selectedCount === 0) return;
     setIsCreatingOrder(true);
@@ -169,7 +195,9 @@ export function SearchResultsGallery({
               {resultCount} {resultCount === 1 ? 'photo' : 'photos'} found
             </h3>
             <p className="text-xs text-slate-400">
-              Select photos to review or purchase
+              {pricingType === 'FREE'
+                ? 'Download original photos directly free of charge'
+                : 'Select photos to review or purchase'}
             </p>
           </div>
         </div>
@@ -267,16 +295,24 @@ export function SearchResultsGallery({
                   <span>ID: {item.photoId.slice(-8)}</span>
                 </div>
 
-                <Badge
-                  variant="outline"
-                  className={`text-xs px-2.5 py-0.5 font-semibold ${
-                    pricingType === 'FREE'
-                      ? 'border-emerald-500/40 bg-emerald-950/60 text-emerald-300'
-                      : 'border-indigo-500/40 bg-indigo-950/60 text-indigo-300'
-                  }`}
-                >
-                  {priceDisplay}
-                </Badge>
+                {pricingType === 'FREE' ? (
+                  <Button
+                    type="button"
+                    onClick={(e) => handleSingleDownload(item.photoId, e)}
+                    size="sm"
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-3 py-1.5 h-auto rounded-lg shadow-md shadow-emerald-600/30 gap-1.5"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    <span>Download</span>
+                  </Button>
+                ) : (
+                  <Badge
+                    variant="outline"
+                    className="text-xs px-2.5 py-0.5 font-semibold border-indigo-500/40 bg-indigo-950/60 text-indigo-300"
+                  >
+                    {priceDisplay}
+                  </Badge>
+                )}
               </div>
             </div>
           );
@@ -296,18 +332,28 @@ export function SearchResultsGallery({
                   {selectedCount} {selectedCount === 1 ? 'photo' : 'photos'} selected
                 </div>
                 <div className="text-xs text-indigo-300 font-semibold">
-                  Est. Total: {formatAmount(estimatedTotal, currency)}
+                  {pricingType === 'FREE' ? 'FREE Event Download' : `Est. Total: ${formatAmount(estimatedTotal, currency)}`}
                 </div>
               </div>
             </div>
 
-            <Button
-              onClick={() => setIsReviewOpen(true)}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 gap-2"
-            >
-              <ShoppingBag className="h-4 w-4" />
-              <span>Review Order</span>
-            </Button>
+            {pricingType === 'FREE' ? (
+              <Button
+                onClick={handleDownloadSelected}
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-600/30 gap-2"
+              >
+                <Download className="h-4 w-4" />
+                <span>Download Selected ({selectedCount})</span>
+              </Button>
+            ) : (
+              <Button
+                onClick={() => setIsReviewOpen(true)}
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 gap-2"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                <span>Review Order</span>
+              </Button>
+            )}
           </div>
         </div>
       )}
