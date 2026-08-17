@@ -79,6 +79,9 @@ experiments/face-calibration/manifest.json
 experiments/face-calibration/stage-b/
 experiments/face-calibration/stage-c/results/*
 !experiments/face-calibration/stage-c/results/score-source-of-truth
+experiments/face-calibration/stageD/
+experiments/face-calibration/stageD_*.json
+experiments/face-calibration/stage-d/results/
 
 # IDEs & Editors
 .idea/
