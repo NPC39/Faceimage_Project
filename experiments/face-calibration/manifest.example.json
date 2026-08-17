@@ -1,0 +1,134 @@
+{
+  "dataset": "pilot-v1",
+  "description": "Pilot Calibration Dataset v1 for Face Recognition Evaluation",
+  "event_photos": [
+    {
+      "photo_id": "E001",
+      "path": "dataset/event/E001.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": ["P001"]
+    },
+    {
+      "photo_id": "E002",
+      "path": "dataset/event/E002.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": ["P001"]
+    },
+    {
+      "photo_id": "E003",
+      "path": "dataset/event/E003.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": ["P003"]
+    },
+    {
+      "photo_id": "E004",
+      "path": "dataset/event/E004.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": ["P003"]
+    },
+    {
+      "photo_id": "E005",
+      "path": "dataset/event/E005.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": ["P004"]
+    },
+    {
+      "photo_id": "E006",
+      "path": "dataset/event/E006.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": ["P004"]
+    },
+    {
+      "photo_id": "E007",
+      "path": "dataset/event/E007.jpg",
+      "photo_type": "SOLO",
+      "visible_face_count": 1,
+      "persons_present": ["P004"]
+    },
+    {
+      "photo_id": "E008",
+      "path": "dataset/event/E008.jpg",
+      "photo_type": "GROUP",
+      "visible_face_count": 3,
+      "persons_present": ["P001", "P002", "P004"]
+    },
+    {
+      "photo_id": "E009",
+      "path": "dataset/event/E009.jpg",
+      "photo_type": "GROUP",
+      "visible_face_count": 2,
+      "persons_present": ["P001", "P004"]
+    },
+    {
+      "photo_id": "E010",
+      "path": "dataset/event/E010.jpg",
+      "photo_type": "GROUP",
+      "visible_face_count": 3,
+      "persons_present": ["P004"]
+    }
+  ],
+  "queries": [
+    {
+      "query_id": "P001_Q01",
+      "person_id": "P001",
+      "path": "dataset/queries/P001_Q01.jpg",
+      "pose": "front",
+      "lighting": "normal"
+    },
+    {
+      "query_id": "P001_Q02",
+      "person_id": "P001",
+      "path": "dataset/queries/P001_Q02.jpg",
+      "pose": "front",
+      "lighting": "normal"
+    },
+    {
+      "query_id": "P002_Q01",
+      "person_id": "P002",
+      "path": "dataset/queries/P002_Q01.jpg",
+      "pose": "front",
+      "lighting": "normal"
+    },
+    {
+      "query_id": "P002_Q02",
+      "person_id": "P002",
+      "path": "dataset/queries/P002_Q02.jpg",
+      "pose": "front",
+      "lighting": "normal"
+    },
+    {
+      "query_id": "P003_Q01",
+      "person_id": "P003",
+      "path": "dataset/queries/P003_Q01.jpg",
+      "pose": "side-facing",
+      "lighting": "normal"
+    },
+    {
+      "query_id": "P003_Q02",
+      "person_id": "P003",
+      "path": "dataset/queries/P003_Q02.jpg",
+      "pose": "front-facing selfie",
+      "lighting": "normal"
+    },
+    {
+      "query_id": "P004_Q01",
+      "person_id": "P004",
+      "path": "dataset/queries/P004_Q01.jpg",
+      "pose": "front",
+      "lighting": "night / low-light"
+    },
+    {
+      "query_id": "P004_Q02",
+      "person_id": "P004",
+      "path": "dataset/queries/P004_Q02.jpg",
+      "pose": "front-facing",
+      "lighting": "normal"
+    }
+  ]
+}

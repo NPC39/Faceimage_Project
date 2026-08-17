@@ -1,0 +1,14 @@
+# Docker build context exclusions
+node_modules
+.next
+Frontend/node_modules
+Frontend/.next
+Frontend/storage
+Backend/.venv
+Backend/__pycache__
+Backend/.pytest_cache
+experiments
+.git
+.idea
+.vscode
+*.log
