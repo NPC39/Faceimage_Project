@@ -54,9 +54,14 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-photomarket}
       - NEXTAUTH_URL=http://localhost:3000
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-development_secret_change_in_production_32bytes_min}
-      - STORAGE_PROVIDER=local
+      - STORAGE_PROVIDER=${STORAGE_PROVIDER:-local}
       - LOCAL_STORAGE_ROOT=/app/storage
-      - MAX_PHOTO_UPLOAD_MB=20
+      - MAX_PHOTO_UPLOAD_MB=${MAX_PHOTO_UPLOAD_MB:-20}
+      - R2_ACCOUNT_ID=${R2_ACCOUNT_ID:-}
+      - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID:-}
+      - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY:-}
+      - R2_BUCKET_NAME=${R2_BUCKET_NAME:-}
+      - R2_ENDPOINT=${R2_ENDPOINT:-}
       - FACE_SERVICE_URL=http://backend:8000
       - FACE_SERVICE_API_KEY=${FACE_SERVICE_API_KEY:-}
       - FACE_SERVICE_TIMEOUT_MS=60000
