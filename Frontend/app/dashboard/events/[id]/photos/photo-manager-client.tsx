@@ -57,6 +57,7 @@ interface PhotoManagerClientProps {
 }
 
 const MAX_CONCURRENT_UPLOADS = 3;
+const MAX_CONCURRENT_FACE_PROCESSING = 1;
 
 export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientProps) {
   const [photos, setPhotos] = useState<PhotoRecord[]>(initialPhotos);
@@ -67,9 +68,43 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
   const [selectedPreviewPhoto, setSelectedPreviewPhoto] = useState<PhotoRecord | null>(null);
   const [isBatchProcessing, setIsBatchProcessing] = useState(false);
   const [processingPhotoIds, setProcessingPhotoIds] = useState<Set<string>>(new Set());
+
+  // AI Face Processing Queue State & Refs
+  const [faceProcessingQueue, setFaceProcessingQueue] = useState<string[]>([]);
+  const [activeProcessingPhotoId, setActiveProcessingPhotoId] = useState<string | null>(null);
+
+  const faceQueueRef = useRef<string[]>([]);
+  const activeProcessingPhotoIdRef = useRef<string | null>(null);
+  const photosRef = useRef<PhotoRecord[]>(photos);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const getStatusBadge = (status: string, faceCount?: number, error?: string | null) => {
+  useEffect(() => {
+    photosRef.current = photos;
+  }, [photos]);
+
+  const enqueuePhotoForProcessing = useCallback((photoId: string) => {
+    if (faceQueueRef.current.includes(photoId)) return;
+    if (activeProcessingPhotoIdRef.current === photoId) return;
+
+    const photo = photosRef.current.find((p) => p.id === photoId);
+    if (photo && photo.processingStatus === 'READY') return;
+
+    const newQueue = [...faceQueueRef.current, photoId];
+    faceQueueRef.current = newQueue;
+    setFaceProcessingQueue(newQueue);
+  }, []);
+
+  const getStatusBadge = (status: string, faceCount?: number, error?: string | null, isQueued?: boolean) => {
+    if (isQueued && status !== 'PROCESSING' && status !== 'READY') {
+      return (
+        <Badge variant="outline" className="bg-slate-950/80 border-amber-500/40 text-amber-300 text-[10px] backdrop-blur-sm px-2 py-0.5 flex items-center gap-1 font-medium">
+          <Loader2 className="h-3 w-3 animate-spin text-amber-400" />
+          <span>Queued</span>
+        </Badge>
+      );
+    }
+
     switch (status) {
       case 'UPLOADED':
         return (
@@ -111,7 +146,6 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
         );
     }
   };
-
 
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024) return `${bytes} B`;
@@ -161,31 +195,51 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
     }
   }, [event.id]);
 
-  const processAllPhotos = useCallback(async () => {
-    setIsBatchProcessing(true);
-    try {
-      const res = await fetch(`/api/events/${event.id}/photos/process-all`, {
-        method: 'POST',
-      });
-      if (res.ok) {
-        const listRes = await fetch(`/api/events/${event.id}/photos`);
-        if (listRes.ok) {
-          const listData = await listRes.json();
-          if (listData.photos) {
-            setPhotos(listData.photos);
-          }
+  // AI Queue Worker Loop (Serial Concurrency = 1)
+  useEffect(() => {
+    let isMounted = true;
+
+    const processNextInQueue = async () => {
+      if (activeProcessingPhotoIdRef.current !== null) return;
+      if (faceQueueRef.current.length === 0) return;
+
+      const nextId = faceQueueRef.current[0];
+      const updatedQueue = faceQueueRef.current.slice(1);
+
+      faceQueueRef.current = updatedQueue;
+      activeProcessingPhotoIdRef.current = nextId;
+
+      setFaceProcessingQueue(updatedQueue);
+      setActiveProcessingPhotoId(nextId);
+
+      try {
+        await processSinglePhoto(nextId);
+      } catch (err) {
+        console.error(`Error processing photo ${nextId}:`, err);
+      } finally {
+        if (isMounted) {
+          activeProcessingPhotoIdRef.current = null;
+          setActiveProcessingPhotoId(null);
         }
       }
-    } catch (err) {
-      console.error('Batch processing error:', err);
-    } finally {
-      setIsBatchProcessing(false);
-    }
-  }, [event.id]);
+    };
 
-  // Polling loop while any photo is PROCESSING
+    processNextInQueue();
+  }, [faceProcessingQueue, activeProcessingPhotoId, processSinglePhoto]);
+
+  // Process all pending UPLOADED or FAILED photos sequentially via local AI queue
+  const processAllPhotos = useCallback(() => {
+    const eligiblePhotos = photosRef.current.filter(
+      (p) => p.processingStatus === 'UPLOADED' || p.processingStatus === 'FAILED'
+    );
+    eligiblePhotos.forEach((p) => {
+      enqueuePhotoForProcessing(p.id);
+    });
+  }, [enqueuePhotoForProcessing]);
+
+  // Polling loop while any photo is PROCESSING or queued
   useEffect(() => {
-    const hasProcessing = photos.some((p) => p.processingStatus === 'PROCESSING');
+    const hasProcessing = photos.some((p) => p.processingStatus === 'PROCESSING') || activeProcessingPhotoId !== null;
     if (!hasProcessing) return;
 
     const interval = setInterval(async () => {
@@ -201,7 +255,7 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [event.id, photos]);
+  }, [event.id, photos, activeProcessingPhotoId]);
 
   const executeMultipartUpload = useCallback(
     (item: UploadItem) => {
@@ -237,7 +291,7 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
             });
 
             newPhotos.forEach((p) => {
-              processSinglePhoto(p.id);
+              enqueuePhotoForProcessing(p.id);
             });
           } catch {
             setUploadQueue((prev) =>
@@ -264,7 +318,7 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
 
       xhr.send(formData);
     },
-    [event.id, processSinglePhoto]
+    [event.id, enqueuePhotoForProcessing]
   );
 
   const uploadSingleFile = useCallback(
@@ -347,7 +401,7 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
                 return [newPhoto, ...prev];
               });
 
-              processSinglePhoto(newPhoto.id);
+              enqueuePhotoForProcessing(newPhoto.id);
             } else {
               const errorMsg = finalizeData.error || 'Failed to finalize photo processing.';
               setUploadQueue((prev) =>
@@ -374,7 +428,7 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
 
       xhr.send(item.file);
     },
-    [event.id, executeMultipartUpload, processSinglePhoto]
+    [event.id, executeMultipartUpload, enqueuePhotoForProcessing]
   );
 
 
@@ -495,15 +549,19 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
                 type="button"
                 size="sm"
                 onClick={processAllPhotos}
-                disabled={isBatchProcessing}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs gap-1.5 h-8"
+                disabled={isBatchProcessing || activeProcessingPhotoId !== null || faceProcessingQueue.length > 0}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs gap-1.5 h-8 disabled:opacity-50"
               >
-                {isBatchProcessing ? (
+                {activeProcessingPhotoId !== null || faceProcessingQueue.length > 0 ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   <RefreshCw className="h-3.5 w-3.5" />
                 )}
-                <span>Process Uploaded Photos</span>
+                <span>
+                  {activeProcessingPhotoId !== null || faceProcessingQueue.length > 0
+                    ? `Processing Queue (${faceProcessingQueue.length + (activeProcessingPhotoId ? 1 : 0)} left)`
+                    : 'Process Uploaded Photos'}
+                </span>
               </Button>
             )}
             <Badge variant="outline" className="border-indigo-500/30 bg-indigo-950/30 text-indigo-300 px-3 py-1 text-xs">
@@ -687,6 +745,9 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
               const isDeleting = deletingPhotoId === photo.id;
               const isConfirming = confirmDeleteId === photo.id;
 
+              const isQueued = faceProcessingQueue.includes(photo.id);
+              const isProcessing = photo.processingStatus === 'PROCESSING' || activeProcessingPhotoId === photo.id;
+
               return (
                 <div
                   key={photo.id}
@@ -706,7 +767,7 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
 
                     {/* Status Badge */}
                     <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
-                      {getStatusBadge(photo.processingStatus, photo._count?.detectedFaces, photo.processingError)}
+                      {getStatusBadge(photo.processingStatus, photo._count?.detectedFaces, photo.processingError, isQueued)}
                     </div>
 
                     {/* Delete & Retry Action Triggers */}
@@ -716,14 +777,15 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
                           type="button"
                           variant="ghost"
                           size="sm"
+                          disabled={isQueued || isProcessing}
                           onClick={(e) => {
                             e.stopPropagation();
-                            processSinglePhoto(photo.id);
+                            enqueuePhotoForProcessing(photo.id);
                           }}
-                          className="h-7 px-2 bg-slate-950/80 hover:bg-indigo-950 text-indigo-300 hover:text-indigo-200 border border-slate-800 rounded-md backdrop-blur-sm text-[11px] gap-1"
+                          className="h-7 px-2 bg-slate-950/80 hover:bg-indigo-950 text-indigo-300 hover:text-indigo-200 border border-slate-800 rounded-md backdrop-blur-sm text-[11px] gap-1 disabled:opacity-50"
                         >
-                          <RefreshCw className="h-3 w-3" />
-                          <span>Retry</span>
+                          <RefreshCw className={`h-3 w-3 ${isQueued ? 'animate-spin' : ''}`} />
+                          <span>{isQueued ? 'Queued' : 'Retry'}</span>
                         </Button>
                       )}
                       <Button

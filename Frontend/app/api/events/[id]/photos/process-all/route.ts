@@ -45,8 +45,9 @@ export async function POST(
     });
   }
 
-  // 3. Process with bounded concurrency (e.g. 2 simultaneous)
-  const concurrency = parseInt(process.env.FACE_PROCESSING_CONCURRENCY || '2', 10);
+  // 3. Process with bounded concurrency (default 1)
+  const rawConcurrency = parseInt(process.env.FACE_PROCESSING_CONCURRENCY || '1', 10);
+  const concurrency = isNaN(rawConcurrency) || rawConcurrency < 1 ? 1 : Math.min(rawConcurrency, 4);
   let successCount = 0;
   let failedCount = 0;
 
