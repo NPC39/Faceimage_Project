@@ -203,12 +203,8 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
     return () => clearInterval(interval);
   }, [event.id, photos]);
 
-  const uploadSingleFile = useCallback(
+  const executeMultipartUpload = useCallback(
     (item: UploadItem) => {
-      setUploadQueue((prev) =>
-        prev.map((q) => (q.id === item.id ? { ...q, status: 'UPLOADING', progress: 0, error: undefined } : q))
-      );
-
       const formData = new FormData();
       formData.append('file', item.file);
 
@@ -240,7 +236,6 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
               return [...filteredNew, ...prev];
             });
 
-            // Auto-trigger AI processing for newly uploaded photos
             newPhotos.forEach((p) => {
               processSinglePhoto(p.id);
             });
@@ -271,6 +266,117 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
     },
     [event.id, processSinglePhoto]
   );
+
+  const uploadSingleFile = useCallback(
+    async (item: UploadItem) => {
+      setUploadQueue((prev) =>
+        prev.map((q) => (q.id === item.id ? { ...q, status: 'UPLOADING', progress: 0, error: undefined } : q))
+      );
+
+      let presignData: any;
+      try {
+        const presignRes = await fetch(`/api/events/${event.id}/photos/presign`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename: item.file.name,
+            contentType: item.file.type,
+            size: item.file.size,
+          }),
+        });
+
+        if (!presignRes.ok) {
+          const errData = await presignRes.json().catch(() => ({}));
+          const errorMsg = errData.error || 'Failed to request upload authorization.';
+          setUploadQueue((prev) =>
+            prev.map((q) => (q.id === item.id ? { ...q, status: 'FAILED', error: errorMsg } : q))
+          );
+          return;
+        }
+
+        presignData = await presignRes.json();
+      } catch {
+        setUploadQueue((prev) =>
+          prev.map((q) => (q.id === item.id ? { ...q, status: 'FAILED', error: 'Presign request failed.' } : q))
+        );
+        return;
+      }
+
+      if (presignData.directUpload === false || !presignData.uploadUrl) {
+        executeMultipartUpload(item);
+        return;
+      }
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', presignData.uploadUrl);
+      xhr.setRequestHeader('Content-Type', presignData.contentType || item.file.type || 'application/octet-stream');
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100);
+          setUploadQueue((prev) =>
+            prev.map((q) => (q.id === item.id ? { ...q, progress: percent } : q))
+          );
+        }
+      };
+
+      xhr.onload = async () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const finalizeRes = await fetch(`/api/events/${event.id}/photos/finalize`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                photoId: presignData.photoId,
+                originalKey: presignData.originalKey,
+              }),
+            });
+
+            const finalizeData = await finalizeRes.json().catch(() => ({}));
+
+            if (finalizeRes.ok && finalizeData.photo) {
+              const newPhoto: PhotoRecord = finalizeData.photo;
+
+              setUploadQueue((prev) =>
+                prev.map((q) => (q.id === item.id ? { ...q, status: 'COMPLETE', progress: 100 } : q))
+              );
+
+              setPhotos((prev) => {
+                const existingIds = new Set(prev.map((p) => p.id));
+                if (existingIds.has(newPhoto.id)) return prev;
+                return [newPhoto, ...prev];
+              });
+
+              processSinglePhoto(newPhoto.id);
+            } else {
+              const errorMsg = finalizeData.error || 'Failed to finalize photo processing.';
+              setUploadQueue((prev) =>
+                prev.map((q) => (q.id === item.id ? { ...q, status: 'FAILED', error: errorMsg } : q))
+              );
+            }
+          } catch {
+            setUploadQueue((prev) =>
+              prev.map((q) => (q.id === item.id ? { ...q, status: 'FAILED', error: 'Finalize request failed.' } : q))
+            );
+          }
+        } else {
+          setUploadQueue((prev) =>
+            prev.map((q) => (q.id === item.id ? { ...q, status: 'FAILED', error: `R2 Upload failed with status ${xhr.status}` } : q))
+          );
+        }
+      };
+
+      xhr.onerror = () => {
+        setUploadQueue((prev) =>
+          prev.map((q) => (q.id === item.id ? { ...q, status: 'FAILED', error: 'R2 Direct Upload network error.' } : q))
+        );
+      };
+
+      xhr.send(item.file);
+    },
+    [event.id, executeMultipartUpload, processSinglePhoto]
+  );
+
 
 
   // Concurrency Queue Loop
