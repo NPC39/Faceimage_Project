@@ -26,6 +26,9 @@ storage/
 uploads/
 Frontend/storage/
 Frontend/uploads/
+!Frontend/lib/storage/
+!Frontend/lib/storage/**
+
 
 # Logs
 npm-debug.log*
