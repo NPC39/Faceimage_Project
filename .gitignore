@@ -27,8 +27,9 @@ uploads/
 Frontend/storage/
 Frontend/uploads/
 !Frontend/lib/storage/
-!Frontend/lib/storage/**
-
+# Benchmarks
+benchmark-results/
+Frontend/benchmark-results/
 
 # Logs
 npm-debug.log*
