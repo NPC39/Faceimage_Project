@@ -17,6 +17,7 @@ export const FaceEmbedResponseSchema = z.object({
   face_count: z.number().int().min(0),
   faces: z.array(FaceEmbeddingSchema),
   inference_ms: z.number().nonnegative(),
+  roundtrip_ms: z.number().optional(),
 });
 
 export type BoundingBox = z.infer<typeof BoundingBoxSchema>;
@@ -61,12 +62,15 @@ export class FaceServiceClient {
       }
 
       const endpointUrl = `${this.baseUrl.replace(/\/$/, '')}/api/v1/faces/embed`;
+      const t0 = performance.now();
       const response = await fetch(endpointUrl, {
         method: 'POST',
         headers,
         body: formData,
         signal: controller.signal,
       });
+      const t1 = performance.now();
+      const roundtripMs = t1 - t0;
 
       if (!response.ok) {
         let errorDetail = response.statusText;
@@ -97,7 +101,10 @@ export class FaceServiceClient {
         throw new FaceServiceError(`Malformed face service response: ${issues}`, 'INVALID_FACE_RESPONSE');
       }
 
-      return parseResult.data;
+      return {
+        ...parseResult.data,
+        roundtrip_ms: Math.round(roundtripMs * 100) / 100,
+      };
 
     } catch (err: unknown) {
       if (err instanceof FaceServiceError) {

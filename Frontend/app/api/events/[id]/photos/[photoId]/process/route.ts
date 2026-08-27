@@ -8,7 +8,10 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { id: string; photoId: string } }
 ) {
+  const tAuth0 = performance.now();
   const session = await getServerSession(authOptions);
+  const tAuth1 = performance.now();
+
   if (!session || !session.user || !session.user.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -16,20 +19,24 @@ export async function POST(
   const { id: eventId, photoId } = params;
 
   // 1. Verify Event ownership (privacy-preserving 404)
+  const tEvent0 = performance.now();
   const event = await prisma.event.findUnique({
     where: { id: eventId },
     select: { id: true, creatorId: true },
   });
+  const tEvent1 = performance.now();
 
   if (!event || event.creatorId !== session.user.id) {
     return NextResponse.json({ error: 'Event not found' }, { status: 404 });
   }
 
   // 2. Verify Photo belongs to this Event (privacy-preserving 404)
+  const tPhoto0 = performance.now();
   const photo = await prisma.eventPhoto.findUnique({
     where: { id: photoId },
     select: { id: true, eventId: true },
   });
+  const tPhoto1 = performance.now();
 
   if (!photo || photo.eventId !== eventId) {
     return NextResponse.json({ error: 'Photo not found' }, { status: 404 });
@@ -37,7 +44,12 @@ export async function POST(
 
   // 3. Process photo server-side
   try {
-    const result = await processEventPhoto(photoId, session.user.id);
+    const routeTimings = {
+      route_auth_ms: Math.round((tAuth1 - tAuth0) * 100) / 100,
+      route_event_lookup_ms: Math.round((tEvent1 - tEvent0) * 100) / 100,
+      route_photo_lookup_ms: Math.round((tPhoto1 - tPhoto0) * 100) / 100,
+    };
+    const result = await processEventPhoto(photoId, session.user.id, routeTimings);
     return NextResponse.json({
       photo: {
         id: result.photoId,

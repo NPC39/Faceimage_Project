@@ -83,12 +83,16 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
     photosRef.current = photos;
   }, [photos]);
 
+  const queueTimestampsRef = useRef<Map<string, { queuedAt: number }>>(new Map());
+
   const enqueuePhotoForProcessing = useCallback((photoId: string) => {
     if (faceQueueRef.current.includes(photoId)) return;
     if (activeProcessingPhotoIdRef.current === photoId) return;
 
     const photo = photosRef.current.find((p) => p.id === photoId);
     if (photo && photo.processingStatus === 'READY') return;
+
+    queueTimestampsRef.current.set(photoId, { queuedAt: performance.now() });
 
     const newQueue = [...faceQueueRef.current, photoId];
     faceQueueRef.current = newQueue;
@@ -212,11 +216,25 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
       setFaceProcessingQueue(updatedQueue);
       setActiveProcessingPhotoId(nextId);
 
+      const startedAt = performance.now();
+      const itemInfo = queueTimestampsRef.current.get(nextId);
+      const queueWaitMs = itemInfo ? startedAt - itemInfo.queuedAt : 0;
+
       try {
         await processSinglePhoto(nextId);
       } catch (err) {
         console.error(`Error processing photo ${nextId}:`, err);
       } finally {
+        const finishedAt = performance.now();
+        try {
+          console.debug('[FACE_QUEUE_PERF]', JSON.stringify({
+            photoLabel: nextId.slice(-8),
+            queue_wait_ms: Math.round(queueWaitMs),
+            process_request_ms: Math.round(finishedAt - startedAt),
+          }));
+        } catch {}
+        queueTimestampsRef.current.delete(nextId);
+
         if (isMounted) {
           activeProcessingPhotoIdRef.current = null;
           setActiveProcessingPhotoId(null);
