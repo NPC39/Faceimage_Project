@@ -130,13 +130,15 @@ async function runLatencyProfiling() {
     await processAndValidateImage(origBuf);
     const tfGen1 = performance.now();
 
-    const tfPrevWrite0 = performance.now();
-    await storageProvider.exists(photo.previewKey!);
-    const tfPrevWrite1 = performance.now();
-
-    const tfThumbWrite0 = performance.now();
-    await storageProvider.exists(photo.thumbnailKey!);
-    const tfThumbWrite1 = performance.now();
+    const tfWrites0 = performance.now();
+    await Promise.all([
+      storageProvider.exists(photo.previewKey!),
+      storageProvider.exists(photo.thumbnailKey!),
+    ]);
+    const tfWrites1 = performance.now();
+    const finalize_writes_ms = tfWrites1 - tfWrites0;
+    const finalize_preview_write_ms = finalize_writes_ms / 2;
+    const finalize_thumb_write_ms = finalize_writes_ms / 2;
 
     const tfDbCreate0 = performance.now();
     await prisma.eventPhoto.findUnique({ where: { id: photo.id } });
@@ -147,8 +149,6 @@ async function runLatencyProfiling() {
     const finalize_storage_exists_ms = tfExists1 - tfExists0;
     const finalize_r2_read_ms = tfRead1 - tfRead0;
     const finalize_sharp_ms = tfGen1 - tfGen0;
-    const finalize_preview_write_ms = tfPrevWrite1 - tfPrevWrite0;
-    const finalize_thumb_write_ms = tfThumbWrite1 - tfThumbWrite0;
     const finalize_db_create_ms = tfDbCreate1 - tfDbCreate0;
     const finalize_total_ms =
       finalize_auth_ms +
@@ -156,8 +156,7 @@ async function runLatencyProfiling() {
       finalize_storage_exists_ms +
       finalize_r2_read_ms +
       finalize_sharp_ms +
-      finalize_preview_write_ms +
-      finalize_thumb_write_ms +
+      finalize_writes_ms +
       finalize_db_create_ms;
 
     // 2. Measure Process Stage Steps

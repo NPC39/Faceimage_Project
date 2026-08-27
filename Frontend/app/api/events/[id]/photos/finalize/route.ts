@@ -124,18 +124,39 @@ export async function POST(
     const previewKey = `events/${event.id}/${photoId}/preview.webp`;
     const thumbnailKey = `events/${event.id}/${photoId}/thumbnail.webp`;
 
+    // Start both derived storage writes concurrently
+    const tWrite0 = performance.now();
+    const [previewResult, thumbnailResult] = await Promise.allSettled([
+      storage.saveObject(previewKey, processed.previewBuffer, 'image/webp'),
+      storage.saveObject(thumbnailKey, processed.thumbnailBuffer, 'image/webp'),
+    ]);
+    const tWrite1 = performance.now();
+    const derivedWriteParallelMs = Math.round((tWrite1 - tWrite0) * 100) / 100;
+
     const createdDerivedKeys: string[] = [];
-    try {
-      const tPrevWrite0 = performance.now();
-      await storage.saveObject(previewKey, processed.previewBuffer, 'image/webp');
-      const tPrevWrite1 = performance.now();
+    if (previewResult.status === 'fulfilled') {
       createdDerivedKeys.push(previewKey);
-
-      const tThumbWrite0 = performance.now();
-      await storage.saveObject(thumbnailKey, processed.thumbnailBuffer, 'image/webp');
-      const tThumbWrite1 = performance.now();
+    }
+    if (thumbnailResult.status === 'fulfilled') {
       createdDerivedKeys.push(thumbnailKey);
+    }
 
+    // Verify both storage writes succeeded
+    if (previewResult.status === 'rejected' || thumbnailResult.status === 'rejected') {
+      // Cleanup any derived object that succeeded (do NOT delete original)
+      for (const key of createdDerivedKeys) {
+        await storage.deleteObject(key).catch(() => {});
+      }
+      const firstError =
+        previewResult.status === 'rejected'
+          ? previewResult.reason
+          : (thumbnailResult as PromiseRejectedResult).reason;
+      const errMsg = firstError?.message || 'Failed to save derived image assets to storage.';
+      console.error('Derived image storage write failed:', firstError);
+      return NextResponse.json({ error: errMsg }, { status: 500 });
+    }
+
+    try {
       const tDbCreate0 = performance.now();
       const photoRecord = await prisma.eventPhoto.create({
         data: {
@@ -164,8 +185,9 @@ export async function POST(
           storage_exists_ms: Math.round((tExists1 - tExists0) * 100) / 100,
           r2_original_read_ms: Math.round((tRead1 - tRead0) * 100) / 100,
           derived_image_generation_ms: Math.round((tGen1 - tGen0) * 100) / 100,
-          preview_storage_write_ms: Math.round((tPrevWrite1 - tPrevWrite0) * 100) / 100,
-          thumbnail_storage_write_ms: Math.round((tThumbWrite1 - tThumbWrite0) * 100) / 100,
+          derived_storage_write_ms: derivedWriteParallelMs,
+          preview_storage_write_ms: derivedWriteParallelMs,
+          thumbnail_storage_write_ms: derivedWriteParallelMs,
           db_photo_create_ms: Math.round((tDbCreate1 - tDbCreate0) * 100) / 100,
           finalize_total_ms: Math.round((tEnd - tStart) * 100) / 100,
         };
