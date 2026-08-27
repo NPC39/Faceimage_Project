@@ -84,6 +84,8 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
   }, [photos]);
 
   const queueTimestampsRef = useRef<Map<string, { queuedAt: number }>>(new Map());
+  const lastPhotoFinishedAtRef = useRef<number>(0);
+  const hasAutoResumedRef = useRef(false);
 
   const enqueuePhotoForProcessing = useCallback((photoId: string) => {
     if (faceQueueRef.current.includes(photoId)) return;
@@ -98,6 +100,19 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
     faceQueueRef.current = newQueue;
     setFaceProcessingQueue(newQueue);
   }, []);
+
+  // Auto-resume UPLOADED photos on initial page mount / data load
+  useEffect(() => {
+    if (hasAutoResumedRef.current) return;
+    hasAutoResumedRef.current = true;
+
+    const uploadedPhotos = initialPhotos.filter((p) => p.processingStatus === 'UPLOADED');
+    if (uploadedPhotos.length > 0) {
+      uploadedPhotos.forEach((p) => {
+        enqueuePhotoForProcessing(p.id);
+      });
+    }
+  }, [initialPhotos, enqueuePhotoForProcessing]);
 
   const getStatusBadge = (status: string, faceCount?: number, error?: string | null, isQueued?: boolean) => {
     if (isQueued && status !== 'PROCESSING' && status !== 'READY') {
@@ -137,7 +152,7 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
         );
       case 'FAILED':
         return (
-          <Badge variant="outline" className="bg-slate-950/80 border-rose-500/40 text-rose-400 text-[10px] backdrop-blur-sm px-2 py-0.5 font-medium flex items-center gap-1" title={error || 'Processing error'}>
+          <Badge variant="outline" className="bg-slate-950/80 border-rose-500/40 text-rose-400 text-[10px] backdrop-blur-sm px-2 py-0.5 flex items-center gap-1" title={error || 'Processing error'}>
             <AlertCircle className="h-3 w-3" />
             <span>Failed</span>
           </Badge>
@@ -161,11 +176,34 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
     setPhotos((prev) =>
       prev.map((p) => (p.id === photoId ? { ...p, processingStatus: 'PROCESSING', processingError: null } : p))
     );
+    const tFetch0 = performance.now();
     try {
       const res = await fetch(`/api/events/${event.id}/photos/${photoId}/process`, {
         method: 'POST',
       });
+      const tFetch1 = performance.now();
+      const clientProcessFetchMs = Math.round((tFetch1 - tFetch0) * 100) / 100;
+
+      const tParse0 = performance.now();
       const data = await res.json();
+      const tParse1 = performance.now();
+      const clientJsonParseMs = Math.round((tParse1 - tParse0) * 100) / 100;
+
+      const tTotal1 = performance.now();
+      const clientTotalProcessingMs = Math.round((tTotal1 - tFetch0) * 100) / 100;
+
+      const serverTimingHeader = res.headers.get('Server-Timing') || 'N/A';
+
+      try {
+        console.log('[FACE_QUEUE_TIMING]', JSON.stringify({
+          label: photoId.slice(-8),
+          fetch_ms: clientProcessFetchMs,
+          parse_ms: clientJsonParseMs,
+          total_ms: clientTotalProcessingMs,
+          server_timing: serverTimingHeader,
+        }));
+      } catch {}
+
       if (res.ok && data.photo) {
         setPhotos((prev) =>
           prev.map((p) =>
@@ -219,6 +257,7 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
       const startedAt = performance.now();
       const itemInfo = queueTimestampsRef.current.get(nextId);
       const queueWaitMs = itemInfo ? startedAt - itemInfo.queuedAt : 0;
+      const queueHandoffMs = lastPhotoFinishedAtRef.current > 0 ? startedAt - lastPhotoFinishedAtRef.current : 0;
 
       try {
         await processSinglePhoto(nextId);
@@ -226,10 +265,12 @@ export function PhotoManagerClient({ event, initialPhotos }: PhotoManagerClientP
         console.error(`Error processing photo ${nextId}:`, err);
       } finally {
         const finishedAt = performance.now();
+        lastPhotoFinishedAtRef.current = finishedAt;
         try {
           console.debug('[FACE_QUEUE_PERF]', JSON.stringify({
             photoLabel: nextId.slice(-8),
             queue_wait_ms: Math.round(queueWaitMs),
+            queue_handoff_ms: Math.round(queueHandoffMs),
             process_request_ms: Math.round(finishedAt - startedAt),
           }));
         } catch {}

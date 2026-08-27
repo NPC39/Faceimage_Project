@@ -50,7 +50,22 @@ export async function POST(
       route_photo_lookup_ms: Math.round((tPhoto1 - tPhoto0) * 100) / 100,
     };
     const result = await processEventPhoto(photoId, session.user.id, routeTimings);
-    return NextResponse.json({
+    const tRouteEnd = performance.now();
+    const routeTotalMs = Math.round((tRouteEnd - tAuth0) * 100) / 100;
+    const timings = result.timings || {};
+
+    const serverTimingValue = [
+      `auth;dur=${timings.route_auth_ms || 0}`,
+      `event_db;dur=${timings.route_event_lookup_ms || 0}`,
+      `photo_db;dur=${timings.route_photo_lookup_ms || 0}`,
+      `r2;dur=${timings.r2_original_read_ms || 0}`,
+      `face;dur=${timings.face_service_roundtrip_ms || 0}`,
+      `inference;dur=${timings.face_service_inference_ms || 0}`,
+      `db;dur=${timings.ready_transaction_ms || 0}`,
+      `total;dur=${routeTotalMs}`,
+    ].join(', ');
+
+    const res = NextResponse.json({
       photo: {
         id: result.photoId,
         processingStatus: result.processingStatus,
@@ -58,6 +73,9 @@ export async function POST(
         faceCount: result.faceCount,
       },
     });
+
+    res.headers.set('Server-Timing', serverTimingValue);
+    return res;
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Processing failed';
     return NextResponse.json({ error: msg }, { status: 500 });
