@@ -46,14 +46,19 @@ class FaceModelLoader:
 
                 app = insightface.app.FaceAnalysis(
                     name=settings.FACE_MODEL_NAME,
-                    providers=providers
+                    providers=providers,
+                    allowed_modules=["detection", "recognition"]
                 )
                 app.prepare(ctx_id=0, det_size=(640, 640), det_thresh=settings.FACE_DET_THRESH)
 
                 self._app = app
                 self._is_initialized = True
                 self._init_error = None
-                logger.info(f"InsightFace model '{settings.FACE_MODEL_NAME}' initialized successfully.")
+                active_modules = sorted(list(app.models.keys()))
+                logger.info(
+                    f"InsightFace model '{settings.FACE_MODEL_NAME}' initialized successfully "
+                    f"with active modules: {', '.join(active_modules)}."
+                )
                 return True
             except Exception as e:
                 self._init_error = str(e)
