@@ -122,12 +122,19 @@ def select_primary_face(faces: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]
     return max(faces, key=get_area)
 
 
-def analyze_image(image_bytes: bytes, include_embeddings: bool = False) -> Tuple[List[Dict[str, Any]], int]:
-    """Decode image bytes and perform InsightFace detection/embedding extraction.
+import time
 
-    Returns tuple of (list of face dictionaries, image height/width info).
+
+def analyze_image_detailed(image_bytes: bytes, include_embeddings: bool = False) -> Tuple[List[Dict[str, Any]], Dict[str, float]]:
+    """Decode image bytes, measure stage timings, and perform InsightFace detection/embedding extraction.
+
+    Returns tuple of (list of face dictionaries, dict of stage timings in milliseconds).
+    Timings include: decode_ms, model_inference_ms, postprocess_ms.
     """
+    t_decode_0 = time.perf_counter()
     img = decode_image(image_bytes)
+    t_decode_1 = time.perf_counter()
+    decode_ms = round((t_decode_1 - t_decode_0) * 1000, 2)
 
     if not face_model_loader.is_ready():
         success = face_model_loader.initialize()
@@ -139,12 +146,16 @@ def analyze_image(image_bytes: bytes, include_embeddings: bool = False) -> Tuple
     if app is None:
         raise ModelUnavailableError("Face recognition model is not loaded.")
 
+    t_inf_0 = time.perf_counter()
     try:
         raw_faces = app.get(img)
     except Exception as e:
         logger.error(f"Inference error during InsightFace detection: {e}", exc_info=True)
         raise RuntimeError("Internal face detection inference failure.") from e
+    t_inf_1 = time.perf_counter()
+    model_inference_ms = round((t_inf_1 - t_inf_0) * 1000, 2)
 
+    t_post_0 = time.perf_counter()
     height, width = img.shape[:2]
     faces_output: List[Dict[str, Any]] = []
 
@@ -179,5 +190,22 @@ def analyze_image(image_bytes: bytes, include_embeddings: bool = False) -> Tuple
                 face_dict["embedding"] = [0.0] * 512
 
         faces_output.append(face_dict)
+    t_post_1 = time.perf_counter()
+    postprocess_ms = round((t_post_1 - t_post_0) * 1000, 2)
 
+    timings = {
+        "decode_ms": decode_ms,
+        "model_inference_ms": model_inference_ms,
+        "postprocess_ms": postprocess_ms,
+    }
+
+    return faces_output, timings
+
+
+def analyze_image(image_bytes: bytes, include_embeddings: bool = False) -> List[Dict[str, Any]]:
+    """Decode image bytes and perform InsightFace detection/embedding extraction.
+
+    Returns list of face dictionaries.
+    """
+    faces_output, _ = analyze_image_detailed(image_bytes, include_embeddings=include_embeddings)
     return faces_output

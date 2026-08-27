@@ -95,8 +95,29 @@ export async function processEventPhoto(
     const tAi1 = performance.now();
 
     const faceRoundtripMs = aiResponse.roundtrip_ms ?? (tAi1 - tAi0);
-    const faceInferenceMs = aiResponse.inference_ms;
-    const faceOverheadMs = Math.max(0, faceRoundtripMs - faceInferenceMs);
+    const faceServiceTotalMs = aiResponse.timings?.total_ms ?? aiResponse.inference_ms;
+    const faceInferenceMs = aiResponse.timings?.model_inference_ms ?? aiResponse.inference_ms;
+    const faceDecodeMs = aiResponse.timings?.decode_ms ?? 0;
+    const facePostprocessMs = aiResponse.timings?.postprocess_ms ?? 0;
+    const faceReadMs = aiResponse.timings?.request_read_ms ?? 0;
+    const serverNonModelMs = Math.max(0, faceServiceTotalMs - faceInferenceMs);
+    const networkTransportOverheadMs = Math.max(0, faceRoundtripMs - faceServiceTotalMs);
+
+    // Invariant check: model_inference <= face_service_total <= face_service_roundtrip
+    const invariantViolated =
+      faceInferenceMs > faceServiceTotalMs + 5.0 ||
+      faceServiceTotalMs > faceRoundtripMs + 5.0;
+
+    if (invariantViolated) {
+      try {
+        console.warn('[TIMING_INVARIANT_VIOLATION]', JSON.stringify({
+          photoLabel: photoId.slice(-8),
+          faceInferenceMs,
+          faceServiceTotalMs,
+          faceRoundtripMs,
+        }));
+      } catch {}
+    }
 
     // 5. Persist face records & mark READY inside transaction
     const faceCount = aiResponse.face_count;
@@ -140,10 +161,16 @@ export async function processEventPhoto(
       atomic_claim_ms: Math.round((tClaim1 - tClaim0) * 100) / 100,
       r2_original_read_ms: Math.round((tR2Read1 - tR2Read0) * 100) / 100,
       face_service_roundtrip_ms: Math.round(faceRoundtripMs * 100) / 100,
+      face_service_total_ms: Math.round(faceServiceTotalMs * 100) / 100,
       face_service_inference_ms: Math.round(faceInferenceMs * 100) / 100,
-      face_service_overhead_ms: Math.round(faceOverheadMs * 100) / 100,
+      face_service_decode_ms: Math.round(faceDecodeMs * 100) / 100,
+      face_service_postprocess_ms: Math.round(facePostprocessMs * 100) / 100,
+      face_service_read_ms: Math.round(faceReadMs * 100) / 100,
+      server_non_model_ms: Math.round(serverNonModelMs * 100) / 100,
+      network_transport_overhead_ms: Math.round(networkTransportOverheadMs * 100) / 100,
       ready_transaction_ms: Math.round((tTx1 - tTx0) * 100) / 100,
       process_total_ms: Math.round((tProcEnd - tProcStart) * 100) / 100,
+      timing_invariant_violated: invariantViolated ? 1 : 0,
     };
 
     // Safe structured log

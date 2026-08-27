@@ -13,15 +13,25 @@ export const FaceEmbeddingSchema = z.object({
   embedding: z.array(z.number().refine((val) => Number.isFinite(val), { message: 'Embedding must contain finite numbers' })).length(512),
 });
 
+export const FaceServiceTimingsSchema = z.object({
+  request_read_ms: z.number().nonnegative(),
+  decode_ms: z.number().nonnegative(),
+  model_inference_ms: z.number().nonnegative(),
+  postprocess_ms: z.number().nonnegative(),
+  total_ms: z.number().nonnegative(),
+});
+
 export const FaceEmbedResponseSchema = z.object({
   face_count: z.number().int().min(0),
   faces: z.array(FaceEmbeddingSchema),
   inference_ms: z.number().nonnegative(),
   roundtrip_ms: z.number().optional(),
+  timings: FaceServiceTimingsSchema.optional(),
 });
 
 export type BoundingBox = z.infer<typeof BoundingBoxSchema>;
 export type FaceEmbedding = z.infer<typeof FaceEmbeddingSchema>;
+export type FaceServiceTimings = z.infer<typeof FaceServiceTimingsSchema>;
 export type FaceEmbedResponse = z.infer<typeof FaceEmbedResponseSchema>;
 
 export class FaceServiceError extends Error {

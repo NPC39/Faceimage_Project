@@ -58,11 +58,15 @@ export async function POST(
       `auth;dur=${timings.route_auth_ms || 0}`,
       `event_db;dur=${timings.route_event_lookup_ms || 0}`,
       `photo_db;dur=${timings.route_photo_lookup_ms || 0}`,
-      `r2;dur=${timings.r2_original_read_ms || 0}`,
-      `face;dur=${timings.face_service_roundtrip_ms || 0}`,
-      `inference;dur=${timings.face_service_inference_ms || 0}`,
-      `db;dur=${timings.ready_transaction_ms || 0}`,
-      `total;dur=${routeTotalMs}`,
+      `r2_read;dur=${timings.r2_original_read_ms || 0}`,
+      `face_roundtrip;dur=${timings.face_service_roundtrip_ms || 0}`,
+      `face_backend_total;dur=${timings.face_service_total_ms || 0}`,
+      `model_inference;dur=${timings.face_service_inference_ms || 0}`,
+      `decode;dur=${timings.face_service_decode_ms || 0}`,
+      `postprocess;dur=${timings.face_service_postprocess_ms || 0}`,
+      `transport_overhead;dur=${timings.network_transport_overhead_ms || 0}`,
+      `db_tx;dur=${timings.ready_transaction_ms || 0}`,
+      `route_total;dur=${routeTotalMs}`,
     ].join(', ');
 
     const res = NextResponse.json({

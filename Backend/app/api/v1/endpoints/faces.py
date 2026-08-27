@@ -9,9 +9,11 @@ from app.schemas.face import (
     FaceDetection,
     FaceEmbedding,
     BoundingBox,
+    FaceServiceTimings,
 )
 from app.services.face_service import (
     analyze_image,
+    analyze_image_detailed,
     select_primary_face,
     cosine_similarity,
     ImageValidationError,
@@ -34,7 +36,6 @@ def verify_internal_api_key(x_internal_api_key: str = Header(None)) -> None:
 router = APIRouter(dependencies=[Depends(verify_internal_api_key)])
 
 
-
 @router.post(
     "/detect",
     response_model=FaceDetectResponse,
@@ -45,9 +46,13 @@ router = APIRouter(dependencies=[Depends(verify_internal_api_key)])
 async def detect_faces(file: UploadFile = File(...)) -> FaceDetectResponse:
     start_time = time.perf_counter()
     try:
+        t_read_0 = time.perf_counter()
         image_bytes = await file.read()
-        faces_data = analyze_image(image_bytes, include_embeddings=False)
-        elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
+        t_read_1 = time.perf_counter()
+        request_read_ms = round((t_read_1 - t_read_0) * 1000, 2)
+
+        faces_data, detailed_timings = analyze_image_detailed(image_bytes, include_embeddings=False)
+        total_ms = round((time.perf_counter() - start_time) * 1000, 2)
 
         face_detections = [
             FaceDetection(
@@ -57,11 +62,20 @@ async def detect_faces(file: UploadFile = File(...)) -> FaceDetectResponse:
             for f in faces_data
         ]
 
-        logger.info(f"Face detect: found {len(face_detections)} face(s) in {elapsed_ms}ms")
+        timings_obj = FaceServiceTimings(
+            request_read_ms=request_read_ms,
+            decode_ms=detailed_timings["decode_ms"],
+            model_inference_ms=detailed_timings["model_inference_ms"],
+            postprocess_ms=detailed_timings["postprocess_ms"],
+            total_ms=total_ms
+        )
+
+        logger.info(f"Face detect: found {len(face_detections)} face(s) in {total_ms}ms")
         return FaceDetectResponse(
             face_count=len(face_detections),
             faces=face_detections,
-            inference_ms=elapsed_ms
+            inference_ms=total_ms,
+            timings=timings_obj
         )
 
     except ImageValidationError as e:
@@ -94,9 +108,13 @@ async def detect_faces(file: UploadFile = File(...)) -> FaceDetectResponse:
 async def embed_faces(file: UploadFile = File(...)) -> FaceEmbedResponse:
     start_time = time.perf_counter()
     try:
+        t_read_0 = time.perf_counter()
         image_bytes = await file.read()
-        faces_data = analyze_image(image_bytes, include_embeddings=True)
-        elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
+        t_read_1 = time.perf_counter()
+        request_read_ms = round((t_read_1 - t_read_0) * 1000, 2)
+
+        faces_data, detailed_timings = analyze_image_detailed(image_bytes, include_embeddings=True)
+        total_ms = round((time.perf_counter() - start_time) * 1000, 2)
 
         face_embeddings = [
             FaceEmbedding(
@@ -107,11 +125,24 @@ async def embed_faces(file: UploadFile = File(...)) -> FaceEmbedResponse:
             for f in faces_data
         ]
 
-        logger.info(f"Face embed: extracted embeddings for {len(face_embeddings)} face(s) in {elapsed_ms}ms")
+        timings_obj = FaceServiceTimings(
+            request_read_ms=request_read_ms,
+            decode_ms=detailed_timings["decode_ms"],
+            model_inference_ms=detailed_timings["model_inference_ms"],
+            postprocess_ms=detailed_timings["postprocess_ms"],
+            total_ms=total_ms
+        )
+
+        logger.info(
+            f"Face embed: extracted {len(face_embeddings)} face(s) in total={total_ms}ms "
+            f"(read={request_read_ms}ms, decode={detailed_timings['decode_ms']}ms, "
+            f"inference={detailed_timings['model_inference_ms']}ms, postprocess={detailed_timings['postprocess_ms']}ms)"
+        )
         return FaceEmbedResponse(
             face_count=len(face_embeddings),
             faces=face_embeddings,
-            inference_ms=elapsed_ms
+            inference_ms=total_ms,
+            timings=timings_obj
         )
 
     except ImageValidationError as e:
