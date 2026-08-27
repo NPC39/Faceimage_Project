@@ -29,6 +29,7 @@ Frontend/uploads/
 !Frontend/lib/storage/
 # Benchmarks
 benchmark-results/
+benchmark-input/
 Frontend/benchmark-results/
 
 # Logs
