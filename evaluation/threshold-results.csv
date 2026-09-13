@@ -1,0 +1,13 @@
+threshold,tp,fn,fp,tn,precision,recall,f1,fpr,fnr,notes
+0.20,26,0,15,39,0.6341,1.0000,0.7761,0.2778,0.0000,High recall but severe false positive rate
+0.25,26,0,7,47,0.7879,1.0000,0.8814,0.1296,0.0000,7 false positives
+0.30,23,3,2,52,0.9200,0.8846,0.9020,0.0370,0.1154,2 false positives
+0.32,23,3,0,54,1.0000,0.8846,0.9388,0.0000,0.1154,Maximum scalar F1 score on Stage B set
+0.35,22,4,0,54,1.0000,0.8462,0.9167,0.0000,0.1538,High precision zero FP
+0.40,20,6,0,54,1.0000,0.7692,0.8696,0.0000,0.2308,FROZEN PRODUCTION BASELINE (100% precision)
+0.45,18,8,0,54,1.0000,0.6923,0.8182,0.0000,0.3077,Conservative threshold
+0.50,16,10,0,54,1.0000,0.6154,0.7619,0.0000,0.3846,High recall loss
+0.55,10,16,0,54,1.0000,0.3846,0.5556,0.0000,0.6154,Severe recall loss
+0.60,2,24,0,54,1.0000,0.0769,0.1429,0.0000,0.9231,Legacy threshold (almost total search failure)
+0.65,2,24,0,54,1.0000,0.0769,0.1429,0.0000,0.9231,Legacy threshold
+0.70,1,25,0,54,1.0000,0.0385,0.0741,0.0000,0.9615,Legacy threshold

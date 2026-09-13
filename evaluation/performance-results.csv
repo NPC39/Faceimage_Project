@@ -1,0 +1,15 @@
+category,faces,photos_count,avg_pipeline_ms,avg_onnx_inference_ms,time_per_face_ms,scaling_behavior
+Solo,1 face,3,150.9,120.7,120.7,Linear O(N)
+Small Group,2-4 faces,6,251.4,233.6,77.9,Linear O(N)
+Large Group,5+ faces,5,673.5,660.6,67.4,Linear O(N)
+Single Photo Max,21 faces,1,1101.6,1056.6,50.3,Linear O(N)
+Batching_Serial_Batch1,85 faces,14,380.6,275.4,45.3,Baseline (Recommended)
+Batching_Batch2,85 faces,14,573.9,466.6,68.3,-50.8% Slowdown vs Serial
+Batching_Batch4,85 faces,14,456.2,350.1,54.3,-19.9% Slowdown vs Serial
+Batching_Batch8,85 faces,14,447.9,341.8,53.3,-17.7% Slowdown vs Serial
+Batching_BatchAll,85 faces,14,434.2,327.1,51.7,-14.1% Slowdown vs Serial
+ModulePruning_Full,85 faces,14,706.2,706.2,84.1,Includes genderage & landmarks
+ModulePruning_Restricted,85 faces,14,361.9,361.9,43.1,+48.8% Speedup (Detection+Recognition only)
+DetSize_640x640,85 faces,14,2329.6,2329.6,274.1,Baseline 100% face retention
+DetSize_512x512,81 faces,14,1702.4,1702.4,210.2,+26.9% Speedup (95.3% retention)
+DetSize_480x480,83 faces,14,782.6,782.6,94.3,+66.4% Speedup (97.6% retention)

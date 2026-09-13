@@ -1,0 +1,31 @@
+feature_category,feature_name,frontend_status,backend_status,database_status,end_to_end_status,status
+Authentication,Register User,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Authentication,Login User,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Authentication,Logout User,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Authentication,Session Persistence,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Creator,Create Event,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Creator,Edit Event Settings,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Creator,Delete / Archive Event,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Creator,Upload Multiple Photos,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Creator,Event Link Generation,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Face Recognition,Detect Faces in Image,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Face Recognition,Extract & L2 Normalize Embeddings,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Face Recognition,Store Float[] Embeddings,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Face Recognition,Selfie Camera Capture / File Upload,COMPLETE,COMPLETE,NOT_APPLICABLE,PASS,COMPLETE
+Face Recognition,Cosine Similarity Event Search,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Face Recognition,Multi-Face Ambiguity Guard,COMPLETE,COMPLETE,NOT_APPLICABLE,PASS,COMPLETE
+Face Recognition,Results Gallery Display,COMPLETE,COMPLETE,NOT_APPLICABLE,PASS,COMPLETE
+Photo Access,Preview Watermarked / Low-Res Photo,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Photo Access,Free Event Original Photo Download,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Photo Access,Paid Photo Presigned R2 Download,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Commerce,Per-Photo Pricing Config,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Commerce,Cart Item Selection,COMPLETE,COMPLETE,NOT_APPLICABLE,PASS,COMPLETE
+Commerce,Guest / User Checkout API,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Commerce,Payment Integration (Mock/PromptPay),COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+Commerce,Order Creation & Access Grant,COMPLETE,COMPLETE,COMPLETE,PASS,COMPLETE
+User Experience,Loading States & Skeleton UI,COMPLETE,NOT_APPLICABLE,NOT_APPLICABLE,PASS,COMPLETE
+User Experience,Error Toast & Notification Handling,COMPLETE,NOT_APPLICABLE,NOT_APPLICABLE,PASS,COMPLETE
+User Experience,Mobile Responsiveness,COMPLETE,NOT_APPLICABLE,NOT_APPLICABLE,PASS,COMPLETE
+User Experience,Camera Permission Handling,COMPLETE,NOT_APPLICABLE,NOT_APPLICABLE,PASS,COMPLETE
+Deployment,Docker Compose Environment,COMPLETE,COMPLETE,COMPLETE,FAIL,PARTIAL
+Deployment,Cloudflare R2 Object Storage,COMPLETE,COMPLETE,NOT_APPLICABLE,PASS,COMPLETE

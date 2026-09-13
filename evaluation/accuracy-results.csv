@@ -1,0 +1,7 @@
+dataset,dataset_type,query_count,gt_opportunities,tp,fp,fn,tn,precision,recall,f1_score,fpr,fnr,rprf,rpwf,wpwf,identity_errors
+Stage_C_All,All Queries,22,112,91,1,21,144,0.9891,0.8125,0.8922,0.0069,0.1875,91,1,0,1
+Stage_C_Supported,Supported Frontal,21,108,91,0,17,144,1.0000,0.8426,0.9146,0.0000,0.1574,91,0,0,0
+Stage_D_Baseline,Validation Baseline,16,144,138,0,6,144,0.9956,0.9583,0.9766,0.0000,0.0417,137,1,0,1
+Stage_D_Guard_ON,Validation Guard ON,16,144,137,0,7,144,1.0000,0.9514,0.9751,0.0000,0.0486,137,0,0,0
+Combined_Control_Baseline,Combined Baseline,37,252,229,0,23,288,0.9956,0.9087,0.9502,0.0000,0.0913,228,1,0,1
+Combined_Control_Guard_ON,Combined Guard ON,37,252,228,0,24,288,1.0000,0.9048,0.9500,0.0000,0.0952,228,0,0,0

@@ -157,14 +157,14 @@ export function SearchResultsGallery({
 
   if (resultCount === 0 || results.length === 0) {
     return (
-      <div className="p-8 sm:p-12 rounded-2xl bg-slate-900/90 border border-slate-800 text-center space-y-5 shadow-xl">
-        <div className="h-16 w-16 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center mx-auto text-slate-400">
-          <ImageIcon className="h-8 w-8 text-indigo-400" />
+      <div className="p-8 sm:p-12 rounded-2xl bg-zinc-950 border border-zinc-900 text-center space-y-5 shadow-xl">
+        <div className="h-16 w-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto text-zinc-400">
+          <ImageIcon className="h-8 w-8 text-zinc-200" />
         </div>
 
         <div className="space-y-2 max-w-md mx-auto">
-          <h3 className="text-xl font-bold text-white tracking-tight">No matching photos found</h3>
-          <p className="text-sm text-slate-400 leading-relaxed">
+          <h3 className="text-xl font-bold text-white tracking-tight text-editorial">No matching photos found</h3>
+          <p className="text-sm text-zinc-400 leading-relaxed">
             We couldn&apos;t find any matching photos of you in this event. Try uploading a clearer, well-lit frontal portrait.
           </p>
         </div>
@@ -172,7 +172,7 @@ export function SearchResultsGallery({
         <div className="pt-2">
           <Button
             onClick={onTryAnotherSelfie}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2 font-medium px-6 py-2.5 rounded-xl shadow-lg shadow-indigo-600/20"
+            className="gap-2 font-semibold px-6 py-2.5 rounded-xl shadow-lg"
           >
             <RefreshCw className="h-4 w-4" />
             <span>Try Another Selfie</span>
@@ -185,16 +185,16 @@ export function SearchResultsGallery({
   return (
     <div className="space-y-6 relative">
       {/* Results Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-6 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-lg">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-6 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-lg">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-indigo-950/80 border border-indigo-800/80 text-indigo-400">
+          <div className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200">
             <Sparkles className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white">
+            <h3 className="text-lg font-bold text-white text-editorial">
               {resultCount} {resultCount === 1 ? 'photo' : 'photos'} found
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-zinc-400">
               {pricingType === 'FREE'
                 ? 'Download original photos directly free of charge'
                 : 'Select photos to review or purchase'}
@@ -208,7 +208,7 @@ export function SearchResultsGallery({
               onClick={clearSelection}
               variant="ghost"
               size="sm"
-              className="text-xs text-slate-400 hover:text-white"
+              className="text-xs text-zinc-400 hover:text-white"
             >
               Deselect All
             </Button>
@@ -218,7 +218,7 @@ export function SearchResultsGallery({
             onClick={selectAllPhotos}
             variant="outline"
             size="sm"
-            className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 text-xs font-medium"
+            className="border-zinc-800 bg-zinc-900 text-zinc-200 hover:bg-zinc-800 text-xs font-medium"
           >
             Select All ({results.length})
           </Button>
@@ -227,9 +227,9 @@ export function SearchResultsGallery({
             onClick={onTryAnotherSelfie}
             variant="outline"
             size="sm"
-            className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 text-xs font-medium gap-1.5"
+            className="border-zinc-800 bg-zinc-900 text-zinc-200 hover:bg-zinc-800 text-xs font-medium gap-1.5"
           >
-            <RefreshCw className="h-3.5 w-3.5 text-indigo-400" />
+            <RefreshCw className="h-3.5 w-3.5 text-zinc-400" />
             <span>New Search</span>
           </Button>
         </div>
@@ -247,12 +247,12 @@ export function SearchResultsGallery({
               onClick={() => toggleSelectPhoto(item.photoId)}
               className={`group relative overflow-hidden rounded-2xl border transition-all duration-300 cursor-pointer flex flex-col ${
                 isSelected
-                  ? 'border-indigo-500 bg-indigo-950/20 shadow-xl shadow-indigo-500/20 ring-2 ring-indigo-500/50'
-                  : 'border-slate-800 bg-slate-900/80 hover:border-slate-700 hover:shadow-xl'
+                  ? 'border-zinc-100 bg-zinc-900 shadow-2xl ring-2 ring-zinc-100/50'
+                  : 'border-zinc-900 bg-zinc-950 hover:border-zinc-800 hover:shadow-xl'
               }`}
             >
               {/* Image Container */}
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-950">
+              <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-950">
                 <img
                   src={previewUrl}
                   alt={`Matched event photo rank #${item.rank}`}
@@ -272,8 +272,8 @@ export function SearchResultsGallery({
                     }}
                     className={`h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg ${
                       isSelected
-                        ? 'bg-indigo-600 text-white scale-110 shadow-indigo-600/50'
-                        : 'bg-slate-950/70 border border-slate-700 text-slate-300 hover:bg-slate-900 hover:text-white backdrop-blur-md'
+                        ? 'bg-zinc-100 text-zinc-950 scale-110'
+                        : 'bg-zinc-950/80 border border-zinc-700 text-zinc-300 hover:bg-zinc-900 hover:text-white backdrop-blur-md'
                     }`}
                   >
                     {isSelected ? <Check className="h-4 w-4 stroke-[3]" /> : <Circle className="h-4 w-4" />}
@@ -282,16 +282,16 @@ export function SearchResultsGallery({
 
                 {/* Rank Badge overlay */}
                 <div className="absolute top-3 left-3">
-                  <Badge className="bg-slate-950/80 backdrop-blur-md border border-slate-700 text-slate-200 text-xs font-bold px-2.5 py-1">
+                  <Badge className="bg-zinc-950/80 backdrop-blur-md border border-zinc-800 text-zinc-200 text-xs font-mono font-bold px-2.5 py-1">
                     Match #{item.rank}
                   </Badge>
                 </div>
               </div>
 
               {/* Card Footer Info */}
-              <div className="p-4 bg-slate-900 border-t border-slate-800/80 flex items-center justify-between text-xs mt-auto">
-                <div className="flex items-center gap-1.5 font-mono text-[11px] text-slate-400">
-                  <Tag className="h-3.5 w-3.5 text-indigo-400" />
+              <div className="p-4 bg-zinc-900/90 border-t border-zinc-800/80 flex items-center justify-between text-xs mt-auto">
+                <div className="flex items-center gap-1.5 font-mono text-[11px] text-zinc-400">
+                  <Tag className="h-3.5 w-3.5 text-zinc-300" />
                   <span>ID: {item.photoId.slice(-8)}</span>
                 </div>
 
@@ -300,7 +300,7 @@ export function SearchResultsGallery({
                     type="button"
                     onClick={(e) => handleSingleDownload(item.photoId, e)}
                     size="sm"
-                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-3 py-1.5 h-auto rounded-lg shadow-md shadow-emerald-600/30 gap-1.5"
+                    className="font-semibold text-xs px-3 py-1.5 h-auto rounded-lg shadow-md gap-1.5"
                   >
                     <Download className="h-3.5 w-3.5" />
                     <span>Download</span>
@@ -308,7 +308,7 @@ export function SearchResultsGallery({
                 ) : (
                   <Badge
                     variant="outline"
-                    className="text-xs px-2.5 py-0.5 font-semibold border-indigo-500/40 bg-indigo-950/60 text-indigo-300"
+                    className="text-xs px-2.5 py-0.5 font-mono font-semibold border-zinc-800 bg-zinc-950 text-zinc-200"
                   >
                     {priceDisplay}
                   </Badge>
@@ -319,19 +319,20 @@ export function SearchResultsGallery({
         })}
       </div>
 
+
       {/* Floating Sticky Bottom Bar for Selected Photos */}
       {selectedCount > 0 && !createdOrder && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-xl px-4">
-          <div className="p-4 rounded-2xl bg-slate-900/95 border border-indigo-500/50 backdrop-blur-xl shadow-2xl flex items-center justify-between gap-4 ring-1 ring-indigo-500/20">
+          <div className="p-4 rounded-2xl bg-zinc-950/95 border border-zinc-800 backdrop-blur-xl shadow-2xl flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-indigo-600/30">
+              <div className="h-10 w-10 rounded-xl bg-zinc-100 text-zinc-950 flex items-center justify-center font-bold text-sm shadow-md">
                 {selectedCount}
               </div>
               <div>
                 <div className="text-sm font-bold text-white">
                   {selectedCount} {selectedCount === 1 ? 'photo' : 'photos'} selected
                 </div>
-                <div className="text-xs text-indigo-300 font-semibold">
+                <div className="text-xs text-zinc-400 font-mono font-semibold">
                   {pricingType === 'FREE' ? 'FREE Event Download' : `Est. Total: ${formatAmount(estimatedTotal, currency)}`}
                 </div>
               </div>
@@ -340,7 +341,7 @@ export function SearchResultsGallery({
             {pricingType === 'FREE' ? (
               <Button
                 onClick={handleDownloadSelected}
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-600/30 gap-2"
+                className="font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-lg gap-2"
               >
                 <Download className="h-4 w-4" />
                 <span>Download Selected ({selectedCount})</span>
@@ -348,7 +349,7 @@ export function SearchResultsGallery({
             ) : (
               <Button
                 onClick={() => setIsReviewOpen(true)}
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 gap-2"
+                className="font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-lg gap-2"
               >
                 <ShoppingBag className="h-4 w-4" />
                 <span>Review Order</span>
@@ -360,17 +361,17 @@ export function SearchResultsGallery({
 
       {/* Review Selection Modal */}
       {isReviewOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 space-y-6 max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg rounded-2xl bg-zinc-950 border border-zinc-800 shadow-2xl p-6 space-y-6 max-h-[90vh] flex flex-col">
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div className="flex items-center justify-between border-b border-zinc-900 pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-indigo-950 text-indigo-400 border border-indigo-900">
+                <div className="p-2 rounded-xl bg-zinc-900 text-zinc-200 border border-zinc-800">
                   <ShoppingBag className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">Review Selection</h3>
-                  <p className="text-xs text-slate-400">{selectedCount} photos chosen</p>
+                  <h3 className="text-lg font-bold text-white text-editorial">Review Selection</h3>
+                  <p className="text-xs text-zinc-400">{selectedCount} photos chosen</p>
                 </div>
               </div>
 
@@ -378,7 +379,7 @@ export function SearchResultsGallery({
                 onClick={() => setIsReviewOpen(false)}
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 text-slate-400 hover:text-white"
+                className="h-8 w-8 p-0 text-zinc-400 hover:text-white"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -391,28 +392,28 @@ export function SearchResultsGallery({
                 return (
                   <div
                     key={photoId}
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800 gap-3"
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 gap-3"
                   >
                     <div className="flex items-center gap-3">
                       <img
                         src={previewUrl}
                         alt="Selected thumbnail"
-                        className="h-12 w-12 rounded-lg object-cover bg-slate-900 border border-slate-800"
+                        className="h-12 w-12 rounded-lg object-cover bg-zinc-950 border border-zinc-800"
                       />
-                      <div className="text-xs font-mono text-slate-300">
+                      <div className="text-xs font-mono text-zinc-300">
                         ID: {photoId.slice(-8)}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="text-xs font-semibold text-indigo-300">
+                      <span className="text-xs font-mono font-semibold text-zinc-200">
                         {priceDisplay}
                       </span>
                       <Button
                         onClick={() => toggleSelectPhoto(photoId)}
                         variant="ghost"
                         size="sm"
-                        className="h-7 w-7 p-0 text-slate-400 hover:text-rose-400 hover:bg-rose-950/40"
+                        className="h-7 w-7 p-0 text-zinc-400 hover:text-red-400 hover:bg-zinc-800"
                       >
                         <X className="h-3.5 w-3.5" />
                       </Button>
@@ -423,23 +424,23 @@ export function SearchResultsGallery({
             </div>
 
             {/* Price Breakdown */}
-            <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-2 text-xs">
-              <div className="flex justify-between text-slate-400">
+            <div className="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 space-y-2 text-xs font-mono">
+              <div className="flex justify-between text-zinc-400">
                 <span>Quantity</span>
-                <span className="font-semibold text-slate-200">{selectedCount}</span>
+                <span className="font-semibold text-zinc-200">{selectedCount}</span>
               </div>
-              <div className="flex justify-between text-slate-400">
+              <div className="flex justify-between text-zinc-400">
                 <span>Price per Photo</span>
-                <span className="font-semibold text-slate-200">{priceDisplay}</span>
+                <span className="font-semibold text-zinc-200">{priceDisplay}</span>
               </div>
-              <div className="border-t border-slate-800 pt-2 flex justify-between text-sm font-bold text-white">
+              <div className="border-t border-zinc-800 pt-2 flex justify-between text-sm font-bold text-white">
                 <span>Total Amount</span>
-                <span className="text-indigo-400">{formatAmount(estimatedTotal, currency)}</span>
+                <span className="text-zinc-100">{formatAmount(estimatedTotal, currency)}</span>
               </div>
             </div>
 
             {orderError && (
-              <div className="p-3 rounded-xl bg-rose-950/50 border border-rose-900 text-rose-300 text-xs flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-red-950/30 border border-red-800 text-red-300 text-xs flex items-center gap-2">
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 <span>{orderError}</span>
               </div>
@@ -450,7 +451,7 @@ export function SearchResultsGallery({
               <Button
                 onClick={() => setIsReviewOpen(false)}
                 variant="outline"
-                className="flex-1 border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-medium py-2.5"
+                className="flex-1 border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 text-xs font-medium py-2.5"
               >
                 Continue Selecting
               </Button>
@@ -458,7 +459,7 @@ export function SearchResultsGallery({
               <Button
                 onClick={handleCreatePendingOrder}
                 disabled={isCreatingOrder || selectedCount === 0}
-                className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2.5 gap-2 shadow-lg shadow-indigo-600/20"
+                className="flex-1 text-xs font-semibold py-2.5 gap-2 shadow-lg"
               >
                 {isCreatingOrder ? (
                   <>
@@ -479,41 +480,41 @@ export function SearchResultsGallery({
 
       {/* Order Created Success View */}
       {createdOrder && (
-        <div className="p-6 sm:p-8 rounded-2xl bg-slate-900 border border-emerald-500/40 shadow-2xl space-y-6">
+        <div className="p-6 sm:p-8 rounded-2xl bg-zinc-950 border border-zinc-800 shadow-2xl space-y-6">
           <div className="flex items-start gap-4">
-            <div className="p-3 rounded-2xl bg-emerald-950 text-emerald-400 border border-emerald-800">
+            <div className="p-3 rounded-2xl bg-zinc-900 text-zinc-100 border border-zinc-800">
               <ShieldCheck className="h-7 w-7" />
             </div>
             <div className="space-y-1">
-              <Badge variant="outline" className="border-emerald-500/40 bg-emerald-950/60 text-emerald-300 text-xs px-2.5 py-0.5 font-semibold">
+              <Badge variant="outline" className="border-zinc-800 bg-zinc-900 text-zinc-200 text-xs px-2.5 py-0.5 font-semibold font-mono">
                 Status: {createdOrder.status}
               </Badge>
-              <h3 className="text-xl font-bold text-white">Pending Order Created</h3>
-              <p className="text-xs text-slate-400 font-mono">Order ID: {createdOrder.id}</p>
+              <h3 className="text-xl font-bold text-white text-editorial">Pending Order Created</h3>
+              <p className="text-xs text-zinc-400 font-mono">Order ID: {createdOrder.id}</p>
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3 text-xs">
-            <div className="flex justify-between text-slate-300">
+          <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-3 text-xs">
+            <div className="flex justify-between text-zinc-300">
               <span>Event</span>
               <span className="font-semibold text-white">{createdOrder.eventName}</span>
             </div>
-            <div className="flex justify-between text-slate-300">
+            <div className="flex justify-between text-zinc-300">
               <span>Photos Selected</span>
               <span className="font-semibold text-white">{createdOrder.quantity}</span>
             </div>
-            <div className="flex justify-between text-slate-300">
+            <div className="flex justify-between text-zinc-300">
               <span>Authoritative Total</span>
-              <span className="font-bold text-indigo-400 text-sm">
+              <span className="font-bold text-zinc-100 text-sm font-mono">
                 {formatAmount(createdOrder.total, createdOrder.currency)}
               </span>
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-indigo-950/40 border border-indigo-900/60 text-indigo-300 text-xs flex items-center gap-3">
-            <Sparkles className="h-5 w-5 text-indigo-400 shrink-0" />
+          <div className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs flex items-center gap-3">
+            <Sparkles className="h-5 w-5 text-zinc-100 shrink-0" />
             <span>
-              Payment gateway integration coming in next phase. Your selection of {createdOrder.quantity} photos has been saved safely with ID: <strong className="font-mono text-white">{createdOrder.id}</strong>.
+              Your selection of {createdOrder.quantity} photos has been saved safely with ID: <strong className="font-mono text-white">{createdOrder.id}</strong>.
             </span>
           </div>
 
@@ -524,7 +525,7 @@ export function SearchResultsGallery({
                 setSelectedPhotoIds(new Set());
               }}
               variant="outline"
-              className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 text-xs font-medium"
+              className="border-zinc-800 bg-zinc-900 text-zinc-200 hover:bg-zinc-800 text-xs font-medium"
             >
               Done / Start New Search
             </Button>
@@ -534,3 +535,4 @@ export function SearchResultsGallery({
     </div>
   );
 }
+

@@ -370,15 +370,15 @@ export function SearchMyPhotosSection({
   // 1. Zero READY Photos State
   if (readyPhotoCount === 0) {
     return (
-      <Card className="bg-slate-900/90 border-slate-800 text-white shadow-xl">
+      <Card className="bg-zinc-950 border-zinc-900 text-white shadow-xl">
         <CardContent className="p-8 sm:p-10 text-center space-y-4">
-          <div className="h-14 w-14 rounded-2xl bg-amber-950/60 border border-amber-800/60 text-amber-400 flex items-center justify-center mx-auto">
+          <div className="h-14 w-14 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400 flex items-center justify-center mx-auto">
             <Lock className="h-7 w-7" />
           </div>
 
           <div className="space-y-1 max-w-md mx-auto">
             <h3 className="text-lg font-bold text-white">Photos are being prepared</h3>
-            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+            <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
               The event organizer is currently processing photos. Face search will become available as soon as photos are ready.
             </p>
           </div>
@@ -409,18 +409,18 @@ export function SearchMyPhotosSection({
       />
 
       {/* Main Selfie Search Form Card */}
-      <Card className="bg-slate-900/90 border-slate-800 text-white shadow-xl overflow-hidden">
+      <Card className="bg-zinc-950 border-zinc-900 text-white shadow-2xl overflow-hidden">
         <CardContent className="p-6 sm:p-10 space-y-6">
           {/* Header */}
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-950/60 border border-indigo-800/60 text-indigo-300 text-xs font-semibold">
-              <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-semibold">
+              <Sparkles className="h-3.5 w-3.5 text-zinc-100" />
               <span>Find My Photos</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white text-editorial">
               Search by Selfie
             </h2>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-zinc-400">
               Upload or take a photo of yourself to find all matching photos from this event.
             </p>
           </div>
@@ -433,19 +433,19 @@ export function SearchMyPhotosSection({
               onDrop={handleDrop}
               className={`border-2 border-dashed rounded-2xl p-8 text-center space-y-5 transition-all ${
                 isDragOver
-                  ? 'border-indigo-500 bg-indigo-950/30'
-                  : 'border-slate-800 hover:border-slate-700 bg-slate-950/50'
+                  ? 'border-zinc-500 bg-zinc-900/60'
+                  : 'border-zinc-800 hover:border-zinc-700 bg-zinc-900/30'
               }`}
             >
-              <div className="h-16 w-16 rounded-2xl bg-indigo-950/60 border border-indigo-900/60 text-indigo-400 flex items-center justify-center mx-auto">
-                <Upload className="h-8 w-8" />
+              <div className="h-14 w-14 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center justify-center mx-auto">
+                <Upload className="h-7 w-7" />
               </div>
 
               <div className="space-y-1">
                 <div className="text-sm font-semibold text-white">
                   Drag and drop your selfie here, or browse
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-zinc-500">
                   Supports JPEG, PNG, WebP (Max 10 MB)
                 </p>
               </div>
@@ -454,26 +454,26 @@ export function SearchMyPhotosSection({
                 <Button
                   onClick={() => fileInputRef.current?.click()}
                   variant="outline"
-                  className="border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold gap-2 px-5 py-2.5 rounded-xl"
+                  className="border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-200 text-xs font-semibold gap-2 px-5 py-2.5 rounded-xl"
                 >
-                  <Upload className="h-4 w-4 text-indigo-400" />
+                  <Upload className="h-4 w-4 text-zinc-300" />
                   <span>Choose Photo</span>
                 </Button>
 
                 <Button
                   onClick={startCamera}
-                  variant="outline"
-                  className="border-indigo-500/40 bg-indigo-950/40 hover:bg-indigo-900/60 text-indigo-300 text-xs font-semibold gap-2 px-5 py-2.5 rounded-xl"
+                  variant="default"
+                  className="text-xs font-semibold gap-2 px-5 py-2.5 rounded-xl"
                 >
-                  <Camera className="h-4 w-4 text-purple-400" />
+                  <Camera className="h-4 w-4 shrink-0" />
                   <span>Take Selfie</span>
                 </Button>
               </div>
             </div>
           ) : (
-            <div className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-2xl bg-slate-950/80 border border-slate-800">
+            <div className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800">
               {/* Selfie Image Local Object Preview */}
-              <div className="relative h-32 w-32 rounded-xl overflow-hidden border-2 border-indigo-500/50 flex-shrink-0 shadow-lg">
+              <div className="relative h-32 w-32 rounded-xl overflow-hidden border border-zinc-700 flex-shrink-0 shadow-lg">
                 <img
                   src={previewUrl}
                   alt="Selected selfie preview"
@@ -482,7 +482,7 @@ export function SearchMyPhotosSection({
                 <button
                   onClick={handleRemoveFile}
                   disabled={isSearching}
-                  className="absolute top-1.5 right-1.5 h-6 w-6 rounded-full bg-slate-950/80 text-slate-300 hover:text-white flex items-center justify-center border border-slate-700 transition-colors"
+                  className="absolute top-1.5 right-1.5 h-6 w-6 rounded-full bg-zinc-950/80 text-zinc-300 hover:text-white flex items-center justify-center border border-zinc-800 transition-colors"
                   aria-label="Remove selfie"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -495,7 +495,7 @@ export function SearchMyPhotosSection({
                   <div className="text-sm font-semibold text-white truncate max-w-xs sm:max-w-md">
                     {selectedFile?.name || 'Selected Selfie'}
                   </div>
-                  <div className="text-xs text-slate-400">
+                  <div className="text-xs text-zinc-400">
                     {selectedFile ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB` : ''} • Ready for search
                   </div>
                 </div>
@@ -504,7 +504,7 @@ export function SearchMyPhotosSection({
                   <Button
                     onClick={handleSearchSubmit}
                     disabled={isSearching}
-                    className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-sm px-6 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 gap-2"
+                    className="font-semibold text-sm px-6 py-2.5 rounded-xl shadow-lg gap-2"
                   >
                     {isSearching ? (
                       <>
@@ -523,7 +523,7 @@ export function SearchMyPhotosSection({
                     onClick={handleRemoveFile}
                     disabled={isSearching}
                     variant="ghost"
-                    className="text-xs text-slate-400 hover:text-white hover:bg-slate-800"
+                    className="text-xs text-zinc-400 hover:text-white hover:bg-zinc-900"
                   >
                     Change Photo
                   </Button>
@@ -534,35 +534,36 @@ export function SearchMyPhotosSection({
 
           {/* Active Search Banner Indicator */}
           {isSearching && (
-            <div className="p-4 rounded-xl bg-indigo-950/50 border border-indigo-800/60 text-indigo-200 text-xs flex items-center gap-3 animate-pulse">
-              <Loader2 className="h-5 w-5 text-indigo-400 animate-spin flex-shrink-0" />
+            <div className="p-4 rounded-xl bg-zinc-900/80 border border-zinc-800 text-zinc-200 text-xs flex items-center gap-3 animate-pulse">
+              <Loader2 className="h-5 w-5 text-zinc-100 animate-spin flex-shrink-0" />
               <div>
-                <span className="font-semibold text-indigo-300 block">Searching for your photos...</span>
-                <span className="text-slate-300">Analyzing selfie and finding matches in this event.</span>
+                <span className="font-semibold text-zinc-100 block">Searching for your photos...</span>
+                <span className="text-zinc-400">Analyzing selfie and finding matches in this event.</span>
               </div>
             </div>
           )}
 
           {/* Error Message Alert Banner */}
           {errorMessage && (
-            <div className="p-4 rounded-xl bg-amber-950/50 border border-amber-800/60 text-amber-200 text-xs flex items-start gap-3 animate-fadeIn">
-              <AlertCircle className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
+            <div className="p-4 rounded-xl bg-red-950/20 border border-red-800/40 text-red-200 text-xs flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
               <div className="space-y-0.5">
-                <span className="font-semibold text-amber-300 block">Search Notice</span>
+                <span className="font-semibold text-red-300 block">Search Notice</span>
                 <p className="leading-relaxed">{errorMessage}</p>
               </div>
             </div>
           )}
 
           {/* Customer Biometric Privacy Guarantee */}
-          <div className="pt-2 flex items-start gap-3 bg-slate-950/40 p-3.5 rounded-xl border border-slate-800/60">
-            <ShieldCheck className="h-4 w-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-slate-400 leading-relaxed">
+          <div className="pt-2 flex items-start gap-3 bg-zinc-900/30 p-3.5 rounded-xl border border-zinc-800/60">
+            <ShieldCheck className="h-4 w-4 text-zinc-300 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-zinc-400 leading-relaxed">
               Your selfie is processed strictly in memory to search this event only and is never stored on our servers.
             </p>
           </div>
         </CardContent>
       </Card>
+
 
       {/* Render Results Gallery when search completes */}
       {searchResults && (

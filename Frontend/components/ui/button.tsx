@@ -8,17 +8,17 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:brightness-110",
+          "bg-zinc-100 text-zinc-900 shadow hover:bg-zinc-200 hover:text-black font-semibold",
         destructive:
-          "bg-red-600 text-white hover:bg-red-700 shadow-md",
+          "bg-red-900/80 text-red-100 hover:bg-red-900 border border-red-800/50 shadow-sm",
         outline:
-          "border border-slate-700 bg-slate-900/60 text-slate-200 hover:bg-slate-800 hover:text-white backdrop-blur-md",
+          "border border-zinc-800 bg-zinc-950/80 text-zinc-200 hover:bg-zinc-900 hover:text-white hover:border-zinc-700 backdrop-blur-sm",
         secondary:
-          "bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-700/50",
+          "bg-zinc-900 text-zinc-100 hover:bg-zinc-800 border border-zinc-800",
         ghost:
-          "text-slate-300 hover:bg-slate-800/60 hover:text-white",
+          "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100",
         link:
-          "text-indigo-400 underline-offset-4 hover:underline",
+          "text-zinc-300 underline-offset-4 hover:underline hover:text-white",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -52,3 +52,4 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 export { Button, buttonVariants };
+
