@@ -1,23 +1,42 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { Eye, EyeOff, Loader2, AlertCircle, Camera, ArrowRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function SignInPanel({ isRegister = false }: { isRegister?: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+  const { status } = useSession();
+
+  // Sanitize callback URL to prevent redirecting to /login, /register, or /api/auth
+  const requestedCallback = searchParams.get('callbackUrl');
+  const safeCallbackUrl =
+    requestedCallback &&
+    requestedCallback.startsWith('/') &&
+    !requestedCallback.startsWith('/login') &&
+    !requestedCallback.startsWith('/register') &&
+    !requestedCallback.startsWith('/api/auth')
+      ? requestedCallback
+      : '/dashboard';
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Redirect existing authenticated users away from /login and /register
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.replace('/dashboard');
+    }
+  }, [status, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,11 +44,40 @@ export function SignInPanel({ isRegister = false }: { isRegister?: boolean }) {
     setLoading(true);
 
     if (isRegister) {
+      if (name.trim().length < 2) {
+        setError('Name must be at least 2 characters long.');
+        setLoading(false);
+        return;
+      }
+
+      if (!email.trim()) {
+        setError('Invalid email address');
+        setLoading(false);
+        return;
+      }
+
+      if (password.length < 6) {
+        setError('Password must be at least 6 characters long.');
+        setLoading(false);
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setError('Passwords do not match.');
+        setLoading(false);
+        return;
+      }
+
       try {
         const res = await fetch('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email: email.trim(), password }),
+          body: JSON.stringify({
+            name: name.trim(),
+            email: email.trim(),
+            password,
+            confirmPassword,
+          }),
         });
 
         const data = await res.json();
@@ -44,15 +92,17 @@ export function SignInPanel({ isRegister = false }: { isRegister?: boolean }) {
           email: email.trim(),
           password,
           redirect: false,
+          callbackUrl: safeCallbackUrl,
         });
 
-        if (signInRes?.error) {
-          setError('Account created, but sign-in failed. Please log in manually.');
+        if (signInRes?.error || !signInRes?.ok) {
+          setError('Account created, but automatic sign-in failed. Please sign in manually.');
           setLoading(false);
-        } else {
-          router.push(callbackUrl);
-          router.refresh();
+          return;
         }
+
+        // Full document navigation ensures session cookie is flushed before middleware runs
+        window.location.assign(safeCallbackUrl);
       } catch (err) {
         setError('An unexpected error occurred. Please try again.');
         setLoading(false);
@@ -63,21 +113,31 @@ export function SignInPanel({ isRegister = false }: { isRegister?: boolean }) {
           email: email.trim(),
           password,
           redirect: false,
+          callbackUrl: safeCallbackUrl,
         });
 
-        if (res?.error) {
+        if (res?.error || !res?.ok) {
           setError('Invalid email or password.');
           setLoading(false);
-        } else {
-          router.push(callbackUrl);
-          router.refresh();
+          return;
         }
+
+        // Full document navigation ensures session cookie is flushed before middleware runs
+        window.location.assign(safeCallbackUrl);
       } catch (err) {
         setError('An unexpected error occurred. Please try again.');
         setLoading(false);
       }
     }
   };
+
+  if (status === 'authenticated') {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-zinc-400" />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 rounded-2xl border border-zinc-800 bg-zinc-950 overflow-hidden shadow-2xl my-8">
@@ -143,6 +203,14 @@ export function SignInPanel({ isRegister = false }: { isRegister?: boolean }) {
                 <label className="block text-xs font-medium text-zinc-300 uppercase tracking-wider">
                   Password
                 </label>
+                {!isRegister && (
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs text-zinc-400 hover:text-zinc-100 transition-colors"
+                  >
+                    Forgot password?
+                  </Link>
+                )}
               </div>
               <div className="relative">
                 <input
@@ -162,6 +230,33 @@ export function SignInPanel({ isRegister = false }: { isRegister?: boolean }) {
                 </button>
               </div>
             </div>
+
+            {isRegister && (
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-medium text-zinc-300 uppercase tracking-wider">
+                    Confirm Password
+                  </label>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2.5 pr-10 text-sm text-white placeholder-zinc-500 focus:border-zinc-400 focus:outline-none transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+            )}
 
             <Button
               type="submit"
